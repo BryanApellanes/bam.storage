@@ -1,18 +1,12 @@
-﻿using Bam.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Bam.Storage;
 
-namespace Bam.Storage
+public interface IStorage
 {
-    public interface IStorage
-    {
-        T Load<T>(string path);
-
-        T[] Search<T>(IStorageSearchFilter searchFilter);
-
-        IStorageResult Save<T>(string path, T value);
-    }
+    IStorageIdentifier Identifier { get; }
+    IRawData Save(IRawData rawData);
+    IRawData Save(string path, IRawData rawData);
+    IRawData Save(byte[] data);
+    IRawData Save(string path, byte[] data);
+    IRawData Load(string hash);
+    IRawData Load(ulong hashId);
 }

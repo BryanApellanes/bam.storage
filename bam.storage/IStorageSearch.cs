@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bam.Storage
 {
-    public interface IStorageSearchFilter
+    public interface IStorageSearch
     {
     }
 }
