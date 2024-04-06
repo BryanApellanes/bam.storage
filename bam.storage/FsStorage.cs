@@ -31,21 +31,26 @@ public class FsStorage : IStorage
         return data;
     }
 
-    public IRawData Save(string path, IRawData rawData)
+    public IRawData Save(string relativePath, IRawData rawData)
     {
-        return Save(path, rawData.Value);
+        return Save(relativePath, rawData.Value);
     }
 
     public IRawData Save(byte[] data)
     {
         RawData rawData = new RawData(data);
-        Save(Path.Combine(Directory.FullName, rawData.HashId.ToString()), data);
+        Save(rawData.HashId.ToString(), data);
         return rawData;
     }
 
-    public IRawData Save(string path, byte[] data)
+    public IRawData Save(string relativePath, byte[] data)
     {
-        File.WriteAllBytes(path, data);
+        FileInfo fileInfo = new FileInfo(Path.Combine(Directory.FullName, relativePath));
+        if (!fileInfo.Directory.Exists)
+        {
+            fileInfo.Directory.Create();
+        }
+        File.WriteAllBytes(fileInfo.FullName, data);
         return new RawData(data);
     }
     

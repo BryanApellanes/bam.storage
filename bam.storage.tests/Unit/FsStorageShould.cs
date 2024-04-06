@@ -29,6 +29,29 @@ public class FsStorageShould : UnitTestMenuContainer
         idPath.ShouldBeEqualTo(hashPath);
         storagePath.ShouldBeEqualTo(idPath);
     }
+
+    [UnitTest]
+    public void SaveFile()
+    {        
+        string root = Path.Combine(Environment.CurrentDirectory, nameof(SaveFile));
+        ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
+        List<string> parts = new List<string> { root };
+        parts.AddRange(typeof(TestStorageData).Namespace.Split('.'));
+        parts.Add(nameof(TestStorageData));
+        parts.Add("key");
+        parts.AddRange(testKey.ToString().Split(2));
+        parts.Add("dat");
+        
+        string expected = Path.Combine(parts.ToArray());
+        string testData = 64.RandomLetters();
+        if (File.Exists(expected))
+        {
+            File.Delete(expected);
+        }
+        IStorage storage = new FsStorage(expected);
+        storage.Save(expected, new RawData(testData));
+        File.Exists(expected).ShouldBeTrue("file was not saved");
+    }
     
     private void DeleteFileIfItExists(string file)
     {

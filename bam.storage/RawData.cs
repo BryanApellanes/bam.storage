@@ -9,7 +9,11 @@ public class RawData : IRawData
     protected RawData(): this(null, Encoding.UTF8)
     {
     }
-    
+
+    public RawData(string data) : this(Encoding.UTF8.GetBytes(data), Encoding.UTF8)
+    {
+    }
+
     public RawData(byte[] value): this(value, Encoding.UTF8)
     {
     }

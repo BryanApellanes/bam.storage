@@ -6,7 +6,7 @@ public class FsStorageIdentifier : IStorageIdentifier
 {
     public static implicit operator string?(FsStorageIdentifier fsStorageIdentifier)
     {
-        return fsStorageIdentifier.Value;
+        return fsStorageIdentifier.FullName;
     }
 
     public static implicit operator FsStorageIdentifier(string value)
@@ -28,7 +28,7 @@ public class FsStorageIdentifier : IStorageIdentifier
         this.Directory = directory;
     }
     
-    public string? Value
+    public string? FullName
     {
         get => Directory?.FullName;
         private init => Directory = new DirectoryInfo(value);
@@ -36,7 +36,7 @@ public class FsStorageIdentifier : IStorageIdentifier
 
     public string Combine(params string[] pathParts)
     {
-        List<string?> parts = new List<string?> { Value };
+        List<string?> parts = new List<string?> { FullName };
         parts.AddRange(pathParts);
         return Path.Combine(parts.ToArray());
     }
