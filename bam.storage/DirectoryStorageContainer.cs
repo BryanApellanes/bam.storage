@@ -9,6 +9,4 @@ public class DirectoryStorageContainer : FsStorageIdentifier, IStorageContainer
     public DirectoryStorageContainer(DirectoryInfo directory) : base(directory)
     {
     }
-    
-    public string? FullName { get; }
 }
