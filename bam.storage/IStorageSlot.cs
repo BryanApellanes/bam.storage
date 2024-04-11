@@ -1,6 +1,4 @@
-using Bam.Storage;
-
-namespace bam.storage;
+namespace Bam.Storage;
 
 public interface IStorageSlot : IStorageIdentifier
 {

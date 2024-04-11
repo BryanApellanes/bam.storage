@@ -28,7 +28,7 @@ public class FsStorageIdentifier : IStorageIdentifier
         this.Directory = directory;
     }
     
-    public string? FullName
+    public virtual string? FullName
     {
         get => Directory?.FullName;
         private init => Directory = new DirectoryInfo(value);
