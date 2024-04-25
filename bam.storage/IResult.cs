@@ -3,5 +3,5 @@ namespace Bam.Storage;
 public interface IResult
 {
     bool Success { get; }
-    string Message { get; internal set; }
+    string Message { get; set; }
 }

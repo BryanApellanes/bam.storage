@@ -28,9 +28,24 @@ public class RawData : IRawData
     public HashAlgorithms HashAlgorithm { get; private set; }
     public Encoding Encoding  { get; protected init; }
 
+    /// <summary>
+    /// Gets the hash converted to an unsigned long.
+    /// </summary>
     public ulong HashId => BitConverter.ToUInt64(Hash, 0);
+    
+    /// <summary>
+    /// Gets the hash hex string equivalent.
+    /// </summary>
     public string HashString => Hash.ToHexString();
+    
+    /// <summary>
+    /// Gets the 
+    /// </summary>
     public byte[] Hash => Value.HashBytes(this.HashAlgorithm);
+    
+    /// <summary>
+    /// Gets the raw value.
+    /// </summary>
     public byte[] Value { get; protected init; }
 
     public override string ToString()
