@@ -7,6 +7,6 @@ public interface IStorage
     IRawData Save(string relativePath, IRawData rawData);
     IRawData Save(byte[] data);
     IRawData Save(string relativePath, byte[] data);
-    IRawData Load(string hash);
+    IRawData Load(string hashIdString);
     IRawData Load(ulong hashId);
 }

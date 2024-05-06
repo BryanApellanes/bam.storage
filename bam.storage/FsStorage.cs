@@ -54,9 +54,9 @@ public class FsStorage : IStorage
         return new RawData(data);
     }
     
-    public IRawData Load(string hash)
+    public IRawData Load(string hashIdString)
     {
-        string path = GetHashPath(hash);
+        string path = GetHashIdPath(hashIdString);
         return new RawData(File.ReadAllBytes(path));
     }
 
@@ -71,9 +71,14 @@ public class FsStorage : IStorage
         return GetHashIdPath(data.HashId);
     }
     
-    public virtual string GetHashPath(string hash)
+    /// <summary>
+    /// Gets the path for the specified hash id.
+    /// </summary>
+    /// <param name="hashIdString">The string representation of the HashId. </param>
+    /// <returns></returns>
+    public virtual string GetHashIdPath(string hashIdString)
     {
-        return GetHashIdPath(BitConverter.ToUInt64(hash.HashToByteArray(), 0));
+        return GetHashIdPath(BitConverter.ToUInt64(hashIdString.HashToByteArray(), 0));
     }
 
     public virtual string GetHashIdPath(ulong hashId)

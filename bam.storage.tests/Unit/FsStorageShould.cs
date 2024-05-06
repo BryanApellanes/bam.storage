@@ -23,7 +23,7 @@ public class FsStorageShould : UnitTestMenuContainer
         RawData rawData = new RawData(valueBytes);
         string storagePath = storage.GetStoragePath(rawData);
         string idPath = storage.GetHashIdPath(rawData.HashId);
-        string hashPath = storage.GetHashPath(rawData.HashString);
+        string hashPath = storage.GetHashIdPath(rawData.HashString);
         
         Message.PrintLine(hashPath);
         idPath.ShouldBeEqualTo(hashPath);
