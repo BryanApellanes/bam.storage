@@ -2,7 +2,7 @@ using Bam.Net;
 
 namespace Bam.Storage;
 
-public class FsStorage : IStorage
+public class FsStorage : Storage
 {
     public static implicit operator DirectoryInfo(FsStorage storage)
     {
@@ -12,58 +12,61 @@ public class FsStorage : IStorage
     public FsStorage()
     {
         this.Directory = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "storage"));
-        this.Identifier = new FsStorageIdentifier(this.Directory);
+        this.RootContainer = new FsStorageContainer(this.Directory);
     }
 
     public FsStorage(string path)
     {
         this.Directory = new DirectoryInfo(path);
-        this.Identifier = new FsStorageIdentifier(this.Directory);
+        this.RootContainer = new FsStorageContainer(this.Directory);
     }
     
     public DirectoryInfo Directory { get; }
 
-    public IStorageIdentifier Identifier { get; }
+    public override IStorageContainer RootContainer { get; }
 
-    public IRawData Save(IRawData data)
+    public override IStorageSlot Save(IRawData data)
     {
-        Save(data.Value);
-        return data;
+        List<string> parts = new List<string>();
+        parts.AddRange(data.HashId.ToString().Split(2));
+        parts.Add("dat");
+        return Save(Path.Combine(parts.ToArray()), data);
     }
 
-    public IRawData Save(string relativePath, IRawData rawData)
-    {
-        return Save(relativePath, rawData.Value);
-    }
-
-    public IRawData Save(byte[] data)
+    public override IStorageSlot Save(byte[] data)
     {
         RawData rawData = new RawData(data);
-        Save(rawData.HashId.ToString(), data);
-        return rawData;
+        return Save(rawData);
     }
-
-    public IRawData Save(string relativePath, byte[] data)
+    
+    public override IStorageSlot Save(string relativePath, byte[] data)
+    {
+        return Save(relativePath, new RawData(data));
+    }
+    
+    public override IStorageSlot Save(string relativePath, IRawData rawData)
     {
         FileInfo fileInfo = new FileInfo(Path.Combine(Directory.FullName, relativePath));
         if (!fileInfo.Directory.Exists)
         {
             fileInfo.Directory.Create();
         }
-        File.WriteAllBytes(fileInfo.FullName, data);
-        return new RawData(data);
-    }
+        this.WriteBytes(fileInfo.FullName, rawData.Value);
+        FsStorageSlot slot = new FsStorageSlot(RootContainer, relativePath);
+        slot.SetData(rawData);
+        return slot;
+    } 
     
-    public IRawData Load(string hashIdString)
+    public override IRawData Load(string hashIdString)
     {
         string path = GetHashIdPath(hashIdString);
-        return new RawData(File.ReadAllBytes(path));
+        return new RawData(this.ReadBytes(path));
     }
 
-    public IRawData Load(ulong hashId)
+    public override IRawData Load(ulong hashId)
     {
         string path = GetHashIdPath(hashId);
-        return new RawData(File.ReadAllBytes(path));
+        return new RawData(this.ReadBytes(path));
     }
 
     public virtual string GetStoragePath(IRawData data)

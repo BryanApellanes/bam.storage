@@ -1,7 +1,13 @@
+using Bam.Net;
+
 namespace Bam.Storage;
 
-public class DirectoryStorageContainer : FsStorageIdentifier, IStorageContainer
+public class DirectoryStorageContainer : FsStorageContainer, IStorageContainer
 {
+    public DirectoryStorageContainer() : base(BamProfile.DataPath)
+    {
+    }
+
     public DirectoryStorageContainer(string path) : base(path)
     {
     }
@@ -10,19 +16,30 @@ public class DirectoryStorageContainer : FsStorageIdentifier, IStorageContainer
     {
     }
 
-
-    public IStorageSlot Save(IStorage storage, IRawData rawData)
+    private static DirectoryStorageContainer _workingDirectoryContainer;
+    private static readonly object _workingDirectoryContainerLock = new object();
+    public static DirectoryStorageContainer WorkingDirectoryContainer
     {
-        throw new NotImplementedException();
+        get
+        {
+            return _workingDirectoryContainerLock.DoubleCheckLock(ref _workingDirectoryContainer,
+                () => new DirectoryStorageContainer(BamDir.Data));
+        }
     }
 
-    public IStorageSlot Save(IStorage storage, string relativePath, IRawData rawData)
+    private static DirectoryStorageContainer _profileDirectoryContainer;
+    private static readonly object _profileDirectoryContainerLock = new object();
+    public static DirectoryStorageContainer ProfileDirectoryContainer
     {
-        throw new NotImplementedException();
+        get
+        {
+            return _profileDirectoryContainerLock.DoubleCheckLock(ref _profileDirectoryContainer,
+                () => new DirectoryStorageContainer(BamProfile.DataPath));
+        }
     }
-
+    
     public IStorageSlot GetSlot(string relativePath)
     {
-        throw new NotImplementedException();
+        return new FsStorageSlot(this, relativePath);
     }
 }

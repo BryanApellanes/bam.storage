@@ -2,24 +2,48 @@ using Bam.Net;
 
 namespace Bam.Storage;
 
-public class FsStorageSlot : RawData, IStorageSlot
+public class FsStorageSlot : IStorageSlot
 {
-    public FsStorageSlot(FileInfo file)
+    public FsStorageSlot(): this("dat")
     {
-        Args.ThrowIfNull(file, "file");
-        this.File = file;
+    }
+    
+    public FsStorageSlot(IStorageContainer storageContainer, string relativePath):this(relativePath)
+    {
+        this.StorageContainer = storageContainer;
+    }
+    
+    public FsStorageSlot(string relativePath)
+    {
+        this.StorageContainer = DirectoryStorageContainer.WorkingDirectoryContainer;
+        this.RelativePath = relativePath;
     }
 
-    private FileInfo File { get; }
+    public string? FullName => StorageContainer != null ? Path.Combine(StorageContainer.FullName, RelativePath) : RelativePath;
 
-    public string? FullName => this.File?.FullName;
+    public IStorageContainer? StorageContainer { get; }
+    public string RelativePath { get; }
+    public string Name { get; }
 
-    private IStorageContainer _storageContainer;
-    public IStorageContainer StorageContainer => _storageContainer ?? (_storageContainer = new DirectoryStorageContainer(this.File?.Directory));
-
-    public string Name => this.File.Name;
-    public IStorageSlot Save(IStorage storage, IRawData rawData)
+    private IRawData _data;
+    public virtual IRawData? GetData()
     {
-        throw new NotImplementedException();
+        if (_data != null)
+        {
+            return _data;
+        }
+        
+        string filePath = Path.Combine(StorageContainer.FullName, RelativePath);
+        if (File.Exists(filePath))
+        {
+            _data = new RawData(File.ReadAllBytes(filePath));
+        }
+
+        return _data;
+    }
+
+    public virtual void SetData(IRawData rawData)
+    {
+        this._data = rawData;
     }
 }
