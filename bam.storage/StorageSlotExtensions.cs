@@ -7,13 +7,13 @@ public static class StorageSlotExtensions
     public static NormalizedSlotInfo GetNormalizedSlotInfo(this IStorageSlot slot)
     {
         Args.ThrowIfNull(slot, "slot");
-        Args.ThrowIfNull(slot.StorageContainer, $"slot.{nameof(slot.StorageContainer)}");
+        Args.ThrowIfNull(slot.StorageHolder, $"slot.{nameof(slot.StorageHolder)}");
         SlotInfo slotInfo = new SlotInfo(slot);
         return new NormalizedSlotInfo()
         {
-            Container = slot.StorageContainer,
+            Holder = slot.StorageHolder,
             Slot = slot,
-            NormalizedContainer = slotInfo.StorageContainer,
+            NormalizedHolder = slotInfo.StorageHolder,
             NormalizedSlot = slotInfo
         };
     }
@@ -37,8 +37,8 @@ public static class StorageSlotExtensions
             slotPath = "dat";
         }
         
-        IStorageContainer container = slot.StorageContainer ?? DirectoryStorageContainer.ProfileDirectoryContainer;
+        IStorageHolder holder = slot.StorageHolder ?? DirectoryStorageHolder.ProfileDirectoryHolder;
 
-        return Path.Combine(container.FullName, slotPath);
+        return Path.Combine(holder.FullName, slotPath);
     }
 }

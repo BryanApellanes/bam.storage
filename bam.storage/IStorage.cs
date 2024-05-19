@@ -2,7 +2,7 @@ namespace Bam.Storage;
 
 public interface IStorage
 {
-    IStorageContainer RootContainer { get; }
+    IStorageHolder RootHolder { get; }
     IStorageSlot Save(IRawData rawData);
     IStorageSlot Save(string relativePath, IRawData rawData);
     IStorageSlot Save(byte[] data);

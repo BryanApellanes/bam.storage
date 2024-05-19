@@ -8,20 +8,20 @@ public class FsStorageSlot : IStorageSlot
     {
     }
     
-    public FsStorageSlot(IStorageContainer storageContainer, string relativePath):this(relativePath)
+    public FsStorageSlot(IStorageHolder storageHolder, string relativePath):this(relativePath)
     {
-        this.StorageContainer = storageContainer;
+        this.StorageHolder = storageHolder;
     }
     
     public FsStorageSlot(string relativePath)
     {
-        this.StorageContainer = DirectoryStorageContainer.WorkingDirectoryContainer;
+        this.StorageHolder = DirectoryStorageHolder.WorkingDirectoryHolder;
         this.RelativePath = relativePath;
     }
 
-    public string? FullName => StorageContainer != null ? Path.Combine(StorageContainer.FullName, RelativePath) : RelativePath;
+    public string? FullName => StorageHolder != null ? Path.Combine(StorageHolder.FullName, RelativePath) : RelativePath;
 
-    public IStorageContainer? StorageContainer { get; }
+    public IStorageHolder? StorageHolder { get; }
     public string RelativePath { get; }
     public string Name { get; }
 
@@ -33,7 +33,7 @@ public class FsStorageSlot : IStorageSlot
             return _data;
         }
         
-        string filePath = Path.Combine(StorageContainer.FullName, RelativePath);
+        string filePath = Path.Combine(StorageHolder.FullName, RelativePath);
         if (File.Exists(filePath))
         {
             _data = new RawData(File.ReadAllBytes(filePath));

@@ -7,15 +7,15 @@ public class SlotInfo : IStorageSlot
     public SlotInfo(IStorageSlot slot)
     {
         this.Original = slot;
-        this.FullName = Path.Combine(slot.StorageContainer.FullName, slot.RelativePath);
+        this.FullName = Path.Combine(slot.StorageHolder.FullName, slot.RelativePath);
         this.Name = Path.GetFileName(this.FullName);
         this.RelativePath = this.Name;
-        this.StorageContainer = new ContainerInfo(slot.StorageContainer.FullName);
+        this.StorageHolder = new HolderInfo(slot.StorageHolder.FullName);
     }
 
     private IStorageSlot Original { get; }
     public string? FullName { get; }
-    public IStorageContainer? StorageContainer { get; }
+    public IStorageHolder? StorageHolder { get; }
     public string RelativePath { get; }
     public string Name { get; }
     public IRawData? GetData()

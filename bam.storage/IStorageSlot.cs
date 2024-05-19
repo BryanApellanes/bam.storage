@@ -2,7 +2,7 @@ namespace Bam.Storage;
 
 public interface IStorageSlot : IStorageIdentifier
 {
-    IStorageContainer? StorageContainer { get; }
+    IStorageHolder? StorageHolder { get; }
     string RelativePath { get; }
     string Name { get; }
     IRawData? GetData();

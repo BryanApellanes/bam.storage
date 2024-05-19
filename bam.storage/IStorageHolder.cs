@@ -2,7 +2,7 @@ using Bam.Storage;
 
 namespace Bam.Storage;
 
-public interface IStorageContainer : IStorageIdentifier
+public interface IStorageHolder : IStorageIdentifier
 {
     IStorageSlot GetSlot(string relativePath);
 }

@@ -2,28 +2,28 @@ using Bam.Net;
 
 namespace Bam.Storage;
 
-public class FsStorageContainer : IStorageContainer
+public class FsStorageHolder : IStorageHolder
 {
-    public static implicit operator string?(FsStorageContainer fsStorageContainer)
+    public static implicit operator string?(FsStorageHolder fsStorageHolder)
     {
-        return fsStorageContainer.FullName;
+        return fsStorageHolder.FullName;
     }
 
-    public static implicit operator FsStorageContainer(string value)
+    public static implicit operator FsStorageHolder(string value)
     {
-        return new FsStorageContainer(value);
+        return new FsStorageHolder(value);
     }
 
-    public static implicit operator DirectoryInfo(FsStorageContainer fsStorageContainer)
+    public static implicit operator DirectoryInfo(FsStorageHolder fsStorageHolder)
     {
-        return fsStorageContainer.Directory;
+        return fsStorageHolder.Directory;
     }
     
-    public FsStorageContainer(string path) : this(new DirectoryInfo(path))
+    public FsStorageHolder(string path) : this(new DirectoryInfo(path))
     {
     }
 
-    public FsStorageContainer(DirectoryInfo directory)
+    public FsStorageHolder(DirectoryInfo directory)
     {
         this.Directory = directory;
     }

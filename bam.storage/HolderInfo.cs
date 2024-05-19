@@ -1,12 +1,12 @@
 namespace Bam.Storage;
 
-public class ContainerInfo: IStorageContainer
+public class HolderInfo: IStorageHolder
 {
-    public ContainerInfo(): this(Path.Combine(DirectoryStorageContainer.ProfileDirectoryContainer, "dat"))
+    public HolderInfo(): this(Path.Combine(DirectoryStorageHolder.ProfileDirectoryHolder, "dat"))
     {
     }
 
-    public ContainerInfo(string fullSlotPath)
+    public HolderInfo(string fullSlotPath)
     {
         this.FullSlotPath = fullSlotPath;
         this.FullName = Path.GetDirectoryName(fullSlotPath);

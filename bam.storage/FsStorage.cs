@@ -12,18 +12,18 @@ public class FsStorage : Storage
     public FsStorage()
     {
         this.Directory = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "storage"));
-        this.RootContainer = new FsStorageContainer(this.Directory);
+        this.RootHolder = new FsStorageHolder(this.Directory);
     }
 
     public FsStorage(string path)
     {
         this.Directory = new DirectoryInfo(path);
-        this.RootContainer = new FsStorageContainer(this.Directory);
+        this.RootHolder = new FsStorageHolder(this.Directory);
     }
     
     public DirectoryInfo Directory { get; }
 
-    public override IStorageContainer RootContainer { get; }
+    public override IStorageHolder RootHolder { get; }
 
     public override IStorageSlot Save(IRawData data)
     {
@@ -52,7 +52,7 @@ public class FsStorage : Storage
             fileInfo.Directory.Create();
         }
         this.WriteBytes(fileInfo.FullName, rawData.Value);
-        FsStorageSlot slot = new FsStorageSlot(RootContainer, relativePath);
+        FsStorageSlot slot = new FsStorageSlot(RootHolder, relativePath);
         slot.SetData(rawData);
         return slot;
     } 

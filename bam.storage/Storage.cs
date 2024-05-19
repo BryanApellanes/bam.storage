@@ -2,7 +2,7 @@ namespace Bam.Storage;
 
 public abstract class Storage : IStorage
 {
-    public abstract IStorageContainer RootContainer { get; }
+    public abstract IStorageHolder RootHolder { get; }
     public abstract IStorageSlot Save(IRawData rawData);
     public abstract IStorageSlot Save(string relativePath, IRawData rawData);
 
