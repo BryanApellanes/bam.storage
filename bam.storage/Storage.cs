@@ -12,7 +12,6 @@ public abstract class Storage : IStorage
 
     public abstract IRawData Load(string hashIdString);
 
-    public abstract IRawData Load(ulong hashId);
 
     protected virtual void WriteBytes(string path, byte[] data)
     {

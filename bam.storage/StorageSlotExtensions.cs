@@ -26,7 +26,7 @@ public static class StorageSlotExtensions
 
     public static string GetFullPath(this IStorageSlot slot)
     {
-        string slotPath = slot.RelativePath;
+        string slotPath = slot.FullName;
         if (string.IsNullOrEmpty(slotPath))
         {
             slotPath = slot.Name;

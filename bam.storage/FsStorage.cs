@@ -27,10 +27,7 @@ public class FsStorage : Storage
 
     public override IStorageSlot Save(IRawData data)
     {
-        List<string> parts = new List<string>();
-        parts.AddRange(data.HashId.ToString().Split(2));
-        parts.Add("dat");
-        return Save(Path.Combine(parts.ToArray()), data);
+        return Save("dat", data);
     }
 
     public override IStorageSlot Save(byte[] data)
@@ -60,12 +57,6 @@ public class FsStorage : Storage
     public override IRawData Load(string hashIdString)
     {
         string path = GetHashIdPath(hashIdString);
-        return new RawData(this.ReadBytes(path));
-    }
-
-    public override IRawData Load(ulong hashId)
-    {
-        string path = GetHashIdPath(hashId);
         return new RawData(this.ReadBytes(path));
     }
 

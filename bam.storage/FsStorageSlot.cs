@@ -16,13 +16,11 @@ public class FsStorageSlot : IStorageSlot
     public FsStorageSlot(string relativePath)
     {
         this.StorageHolder = DirectoryStorageHolder.WorkingDirectoryHolder;
-        this.RelativePath = relativePath;
     }
 
-    public string? FullName => StorageHolder != null ? Path.Combine(StorageHolder.FullName, RelativePath) : RelativePath;
+    public string? FullName => Path.Combine(StorageHolder.FullName, Name);
 
-    public IStorageHolder? StorageHolder { get; }
-    public string RelativePath { get; }
+    public IStorageHolder? StorageHolder { get; protected set; }
     public string Name { get; }
 
     private IRawData _data;
@@ -32,8 +30,8 @@ public class FsStorageSlot : IStorageSlot
         {
             return _data;
         }
-        
-        string filePath = Path.Combine(StorageHolder.FullName, RelativePath);
+
+        string filePath = FullName;
         if (File.Exists(filePath))
         {
             _data = new RawData(File.ReadAllBytes(filePath));
