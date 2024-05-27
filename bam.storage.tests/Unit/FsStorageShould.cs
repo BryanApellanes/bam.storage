@@ -1,11 +1,11 @@
 using System.Text;
 using Bam.Console;
-using Bam.Net.Application.TestClasses;
-using Bam.Net.CoreServices;
+using Bam.Application.TestClasses;
+using Bam.CoreServices;
 using Bam.Storage;
 using Bam.Testing;
 
-namespace Bam.Net.Application.Unit;
+namespace Bam.Application.Unit;
 
 [UnitTestMenu("FsRawDataStorageShould")]
 public class FsStorageShould : UnitTestMenuContainer

@@ -1,6 +1,6 @@
 using Bam.Data;
-using Bam.Net;
-using Bam.Net.Data;
+using Bam;
+using Bam.Data;
 
 namespace Bam.Storage;
 

@@ -1,4 +1,4 @@
-namespace Bam.Net.Application.TestClasses;
+namespace Bam.Application.TestClasses;
 
 public class TestStorageData
 {
