@@ -7,21 +7,22 @@ public class FsStorageSlot : IStorageSlot
     public FsStorageSlot(): this("dat")
     {
     }
-    
-    public FsStorageSlot(IStorageHolder storageHolder, string relativePath):this(relativePath)
+
+    public FsStorageSlot(IStorageHolder storageHolder, string relativePath) : this(relativePath)
     {
         this.StorageHolder = storageHolder;
     }
-    
+
     public FsStorageSlot(string relativePath)
     {
         this.StorageHolder = DirectoryStorageHolder.WorkingDirectoryHolder;
+        this.Name = relativePath;
     }
 
-    public string? FullName => Path.Combine(StorageHolder.FullName, Name);
+    public virtual string? FullName => Path.Combine(StorageHolder.FullName, Name);
 
     public IStorageHolder? StorageHolder { get; protected set; }
-    public string Name { get; }
+    public virtual string Name { get; }
 
     private IRawData _data;
     public virtual IRawData? GetData()

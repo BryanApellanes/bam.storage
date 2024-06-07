@@ -24,10 +24,51 @@ public class FsStorage : Storage
     public DirectoryInfo Directory { get; }
 
     public override IStorageHolder RootHolder { get; }
+    public override IStorageSlot CurrentSlot { get; set; }
+
+    public override IStorageSlot GetSlot()
+    {
+        return CurrentSlot ?? GetSlot("dat");
+    }
+
+    public override IStorageSlot GetSlot(string relativePath)
+    {
+        return new FsStorageSlot(RootHolder, relativePath);
+    }
 
     public override IStorageSlot Save(IRawData data)
     {
-        return Save("dat", data);
+        return Save(this.GetHashIdSlot(data.HashId), data);
+    }
+
+    public override IStorageSlot Save(IStorageSlot slot, IRawData rawData)
+    {
+        Args.ThrowIfNull(RootHolder, nameof(RootHolder));
+        Args.ThrowIf(!slot.StorageHolder.FullName.StartsWith(RootHolder.FullName, StringComparison.InvariantCultureIgnoreCase), $"slot is in {slot.StorageHolder.FullName} not in storage root {RootHolder.FullName}");
+
+        FileInfo fileInfo = new FileInfo(slot.FullName);
+        if (!fileInfo.Directory.Exists)
+        {
+            fileInfo.Directory.Create();
+        }
+        this.WriteBytes(fileInfo.FullName, rawData.Value);
+        slot.SetData(rawData);
+        return slot;
+    }
+    
+    public override IRawData Load(ulong hashId)
+    {
+        return this.Load(GetHashIdSlot(hashId));
+    }
+    
+    public override IRawData Load(IStorageSlot slot)
+    {
+        if (File.Exists(slot.FullName))
+        {
+            return new RawData(this.ReadBytes(slot.FullName));
+        }
+
+        throw new ArgumentException($"slot not found {slot.FullName}");
     }
 
     public override IStorageSlot Save(byte[] data)
@@ -35,12 +76,17 @@ public class FsStorage : Storage
         RawData rawData = new RawData(data);
         return Save(rawData);
     }
-    
+
+    public override IStorageSlot Save(IStorageSlot slot, byte[] data)
+    {
+        return this.Save(slot, new RawData(data));
+    }
+
     public override IStorageSlot Save(string relativePath, byte[] data)
     {
         return Save(relativePath, new RawData(data));
     }
-    
+
     public override IStorageSlot Save(string relativePath, IRawData rawData)
     {
         FileInfo fileInfo = new FileInfo(Path.Combine(Directory.FullName, relativePath));
@@ -49,14 +95,14 @@ public class FsStorage : Storage
             fileInfo.Directory.Create();
         }
         this.WriteBytes(fileInfo.FullName, rawData.Value);
-        FsStorageSlot slot = new FsStorageSlot(RootHolder, relativePath);
+        IStorageSlot slot = this.GetSlot(relativePath);
         slot.SetData(rawData);
-        return slot;
+         return slot;
     } 
-    
-    public override IRawData Load(string hashIdString)
+
+    public override IRawData Load(string relativePath)
     {
-        string path = GetHashIdPath(hashIdString);
+        string path = Path.Combine(this.RootHolder.FullName, relativePath);
         return new RawData(this.ReadBytes(path));
     }
 
@@ -75,6 +121,13 @@ public class FsStorage : Storage
         return GetHashIdPath(BitConverter.ToUInt64(hashIdString.HashToByteArray(), 0));
     }
 
+    public virtual IStorageSlot GetHashIdSlot(ulong hashId)
+    {
+        List<string> parts = new List<string>();
+        parts.AddRange(hashId.ToString().Split(2));
+        return new FsStorageSlot(RootHolder, Path.Combine(parts.ToArray()));
+    }
+    
     public virtual string GetHashIdPath(ulong hashId)
     {
         List<string> parts = new List<string> { Directory.FullName };

@@ -6,10 +6,14 @@ namespace Bam.Storage;
 
 public class RawData : IRawData
 {
-    protected RawData(): this(null, Encoding.UTF8)
+    protected RawData(): this(new byte[]{}, Encoding.UTF8)
     {
     }
 
+    public RawData(string data, Encoding encoding): this(encoding.GetBytes(data))
+    {
+    }
+    
     public RawData(string data) : this(Encoding.UTF8.GetBytes(data), Encoding.UTF8)
     {
     }
