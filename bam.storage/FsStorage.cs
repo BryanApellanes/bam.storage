@@ -130,8 +130,6 @@ public class FsStorage : Storage
     
     public virtual string GetHashIdPath(ulong hashId)
     {
-        List<string> parts = new List<string> { Directory.FullName };
-        parts.AddRange(hashId.ToString().Split(2));
-        return Path.Combine(parts.ToArray());
+        return GetHashIdSlot(hashId).FullName;
     }
 }

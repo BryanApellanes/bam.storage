@@ -36,16 +36,47 @@ public class RawData : IRawData
     /// Gets the hash converted to an unsigned long.
     /// </summary>
     public ulong HashId => BitConverter.ToUInt64(Hash, 0);
-    
+
+    private string _hashString;
     /// <summary>
     /// Gets the hash hex string equivalent.
     /// </summary>
-    public string HashString => Hash.ToHexString();
-    
+    public string HashString
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_hashString) && Hash is { Length: > 0 })
+            {
+                _hashString = Hash.ToHexString();
+            }
+
+            return _hashString;
+        }
+        set => _hashString = value;
+    }
+
+    private byte[] _hash;
     /// <summary>
     /// Gets the 
     /// </summary>
-    public byte[] Hash => Value.HashBytes(this.HashAlgorithm);
+    public byte[] Hash 
+    {
+        get
+        {
+            if (Value != null)
+            {
+                _hash = Value.HashBytes(this.HashAlgorithm);
+            }
+            
+            if (_hash == null && !string.IsNullOrEmpty(HashString))
+            {
+                _hash = HashString.HexToBytes();
+            }
+
+            return _hash;
+        }
+        set => _hash = value;
+    }
     
     /// <summary>
     /// Gets the raw value.
