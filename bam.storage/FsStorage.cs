@@ -38,7 +38,7 @@ public class FsStorage : Storage
 
     public override IStorageSlot Save(IRawData data)
     {
-        return Save(this.GetHashIdSlot(data.HashId), data);
+        return Save(this.CurrentSlot ?? this.GetHashIdSlot(data.HashId), data);
     }
 
     public override IStorageSlot Save(IStorageSlot slot, IRawData rawData)
@@ -114,17 +114,18 @@ public class FsStorage : Storage
     /// <summary>
     /// Gets the path for the specified hash id.
     /// </summary>
-    /// <param name="hashIdString">The string representation of the HashId. </param>
+    /// <param name="hashString">The string representation of the HashId. </param>
     /// <returns></returns>
-    public virtual string GetHashIdPath(string hashIdString)
+    public virtual string GetHashIdPath(string hashString)
     {
-        return GetHashIdPath(BitConverter.ToUInt64(hashIdString.HashToByteArray(), 0));
+        return GetHashIdPath(BitConverter.ToUInt64(hashString.HashToByteArray(), 0));
     }
 
     public virtual IStorageSlot GetHashIdSlot(ulong hashId)
     {
         List<string> parts = new List<string>();
         parts.AddRange(hashId.ToString().Split(2));
+        parts.Add("dat");
         return new FsStorageSlot(RootHolder, Path.Combine(parts.ToArray()));
     }
     
