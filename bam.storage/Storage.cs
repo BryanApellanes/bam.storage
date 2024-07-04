@@ -14,8 +14,9 @@ public abstract class Storage : IStorage
     public abstract IStorageSlot Save(IStorageSlot slot, byte[] data);
 
     public abstract IStorageSlot Save(string relativePath, byte[] data);
-    public abstract IRawData Load(IStorageSlot slot);
-    public abstract IRawData Load(ulong hashId);
+    public abstract IRawData LoadSlot(IStorageSlot slot);
+    public abstract IRawData LoadHashId(ulong hashId);
+    public abstract IRawData LoadHashString(string hashString);
     public abstract IRawData Load(string relativePath);
 
 

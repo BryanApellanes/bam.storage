@@ -55,13 +55,18 @@ public class FsStorage : Storage
         slot.SetData(rawData);
         return slot;
     }
-    
-    public override IRawData Load(ulong hashId)
+
+    public override IRawData LoadHashString(string hashString)
     {
-        return this.Load(GetHashIdSlot(hashId));
+        return LoadHashId(BitConverter.ToUInt64(hashString.HashToByteArray(), 0));
     }
     
-    public override IRawData Load(IStorageSlot slot)
+    public override IRawData LoadHashId(ulong hashId)
+    {
+        return this.LoadSlot(GetHashIdSlot(hashId));
+    }
+    
+    public override IRawData LoadSlot(IStorageSlot slot)
     {
         if (File.Exists(slot.FullName))
         {
@@ -121,6 +126,11 @@ public class FsStorage : Storage
         return GetHashIdPath(BitConverter.ToUInt64(hashString.HashToByteArray(), 0));
     }
 
+    public virtual IStorageSlot GetHashStringSlot(string hashString)
+    {
+        return GetHashIdSlot(BitConverter.ToUInt64(hashString.HashToByteArray(), 0));
+    }
+    
     public virtual IStorageSlot GetHashIdSlot(ulong hashId)
     {
         List<string> parts = new List<string>();

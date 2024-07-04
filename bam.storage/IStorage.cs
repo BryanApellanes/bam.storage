@@ -12,6 +12,6 @@ public interface IStorage : IRawStorage
     IStorageSlot Save(IStorageSlot slot, byte[] data);
     IStorageSlot Save(string relativePath, byte[] data);
 
-    IRawData Load(IStorageSlot slot);
+    IRawData LoadSlot(IStorageSlot slot);
     IRawData Load(string relativePath);
 }
