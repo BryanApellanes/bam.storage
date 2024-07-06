@@ -38,7 +38,7 @@ public class FsStorage : Storage
 
     public override IStorageSlot Save(IRawData data)
     {
-        return Save(this.CurrentSlot ?? this.GetHashIdSlot(data.HashId), data);
+        return Save(this.CurrentSlot ?? this.GetHashHexStringStorageSlot(data.HashHexString), data);
     }
 
     public override IStorageSlot Save(IStorageSlot slot, IRawData rawData)
@@ -63,7 +63,7 @@ public class FsStorage : Storage
     
     public override IRawData LoadHashId(ulong hashId)
     {
-        return this.LoadSlot(GetHashIdSlot(hashId));
+        return this.LoadSlot(GetHashLongIdStorageSlot(hashId));
     }
     
     public override IRawData LoadSlot(IStorageSlot slot)
@@ -111,36 +111,54 @@ public class FsStorage : Storage
         return new RawData(this.ReadBytes(path));
     }
 
-    public virtual string GetStoragePath(IRawData data)
+    public virtual string GetHashHexStringStoragePath(IRawData data)
     {
-        return GetHashIdPath(data.HashId);
+        return GetHashHexStringStorageSlotPath(data.HashHexString);
+    }
+    
+    public virtual string GetHashLongIdStoragePath(IRawData data)
+    {
+        return GetHashLongIdStorageSlotPath(data.HashId);
     }
     
     /// <summary>
     /// Gets the path for the specified hash id.
     /// </summary>
-    /// <param name="hashString">The string representation of the HashId. </param>
+    /// <param name="hashHexString">The string representation of the HashId. </param>
     /// <returns></returns>
-    public virtual string GetHashIdPath(string hashString)
+    public virtual string GetHashLongIdPathFromHashHexString(string hashHexString)
     {
-        return GetHashIdPath(BitConverter.ToUInt64(hashString.HashToByteArray(), 0));
+        return GetHashLongIdStorageSlotPath(BitConverter.ToUInt64(hashHexString.HashToByteArray(), 0));
     }
 
-    public virtual IStorageSlot GetHashStringSlot(string hashString)
+    public virtual IStorageSlot GetHashLongIdSlotFromHashHexString(string hashHexString)
     {
-        return GetHashIdSlot(BitConverter.ToUInt64(hashString.HashToByteArray(), 0));
+        return GetHashLongIdStorageSlot(BitConverter.ToUInt64(hashHexString.HashToByteArray(), 0));
     }
     
-    public virtual IStorageSlot GetHashIdSlot(ulong hashId)
+    public virtual IStorageSlot GetHashLongIdStorageSlot(ulong hashLongId)
     {
         List<string> parts = new List<string>();
-        parts.AddRange(hashId.ToString().Split(2));
+        parts.AddRange(hashLongId.ToString().Split(2));
         parts.Add("dat");
         return new FsStorageSlot(RootHolder, Path.Combine(parts.ToArray()));
     }
     
-    public virtual string GetHashIdPath(ulong hashId)
+    public virtual string GetHashLongIdStorageSlotPath(ulong hashId)
     {
-        return GetHashIdSlot(hashId).FullName;
+        return GetHashLongIdStorageSlot(hashId).FullName;
+    }
+
+    public virtual IStorageSlot GetHashHexStringStorageSlot(string hashHexString)
+    {
+        List<string> parts = new List<string>();
+        parts.AddRange(hashHexString.Split(2));
+        parts.Add("dat");
+        return new FsStorageSlot(RootHolder, Path.Combine(parts.ToArray()));
+    }
+    
+    public virtual string GetHashHexStringStorageSlotPath(string hashHexString)
+    {
+        return GetHashHexStringStorageSlot(hashHexString).FullName;
     }
 }

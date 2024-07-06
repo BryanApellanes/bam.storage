@@ -41,7 +41,7 @@ public class RawData : IRawData
     /// <summary>
     /// Gets the hash hex string equivalent.
     /// </summary>
-    public string HashString
+    public string HashHexString
     {
         get
         {
@@ -68,9 +68,9 @@ public class RawData : IRawData
                 _hash = Value.HashBytes(this.HashAlgorithm);
             }
             
-            if (_hash == null && !string.IsNullOrEmpty(HashString))
+            if (_hash == null && !string.IsNullOrEmpty(HashHexString))
             {
-                _hash = HashString.HexToBytes();
+                _hash = HashHexString.HexToBytes();
             }
 
             return _hash;

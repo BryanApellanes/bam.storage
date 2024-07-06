@@ -21,9 +21,9 @@ public class FsStorageShould : UnitTestMenuContainer
         string value = 256.RandomLetters();
         byte[] valueBytes = Encoding.UTF8.GetBytes(value);
         RawData rawData = new RawData(valueBytes);
-        string storagePath = storage.GetStoragePath(rawData);
-        string idPath = storage.GetHashIdPath(rawData.HashId);
-        string hashPath = storage.GetHashIdPath(rawData.HashString);
+        string storagePath = storage.GetHashLongIdStoragePath(rawData);
+        string idPath = storage.GetHashLongIdStorageSlotPath(rawData.HashId);
+        string hashPath = storage.GetHashLongIdPathFromHashHexString(rawData.HashHexString);
         
         Message.PrintLine(hashPath);
         idPath.ShouldBeEqualTo(hashPath);
