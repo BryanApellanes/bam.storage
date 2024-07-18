@@ -83,16 +83,6 @@ public class RawData : IRawData
     /// </summary>
     public byte[] Value { get; protected init; }
 
-    public T Convert<T>()
-    {
-        // string
-        // boolean
-        // uint64 aka ulong
-        // char
-
-        throw new NotImplementedException();
-    }
-
     public override string ToString()
     {
         return Encoding.GetString(this.Value);

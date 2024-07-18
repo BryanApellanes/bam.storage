@@ -56,9 +56,9 @@ public class FsStorage : Storage
         return slot;
     }
 
-    public override IRawData LoadHashString(string hashString)
+    public override IRawData LoadHashHexString(string hashHexString)
     {
-        return LoadHashId(BitConverter.ToUInt64(hashString.HashToByteArray(), 0));
+        return LoadSlot(GetHashHexStringStorageSlot(hashHexString));
     }
     
     public override IRawData LoadHashId(ulong hashId)
