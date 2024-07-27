@@ -3,7 +3,7 @@ using Bam.Console;
 using Bam.Application.TestClasses;
 using Bam.CoreServices;
 using Bam.Storage;
-using Bam.Testing;
+using Bam.Test;
 
 namespace Bam.Application.Unit;
 
