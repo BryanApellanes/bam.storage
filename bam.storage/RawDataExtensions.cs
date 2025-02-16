@@ -1,5 +1,3 @@
-using Bam;
-
 namespace Bam.Storage;
 
 public static class RawDataExtensions

@@ -1,7 +1,8 @@
 using System.Text;
 using Bam.Console;
 using Bam.Application.TestClasses;
-using Bam.CoreServices;
+using Bam.DependencyInjection;
+using Bam.Services;
 using Bam.Storage;
 using Bam.Test;
 

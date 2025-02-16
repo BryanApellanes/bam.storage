@@ -1,5 +1,3 @@
-using Bam;
-
 namespace Bam.Storage;
 
 public class FsStorageHolder : IStorageHolder
