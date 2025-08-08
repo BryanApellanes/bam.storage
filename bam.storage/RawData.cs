@@ -55,7 +55,7 @@ public class RawData : IRawData
 
     private byte[] _hash;
     /// <summary>
-    /// Gets the 
+    /// Gets the binary hash.
     /// </summary>
     public byte[] Hash 
     {

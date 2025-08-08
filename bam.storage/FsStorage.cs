@@ -126,12 +126,12 @@ public class FsStorage : Storage
     /// <returns></returns>
     public virtual string GetHashLongIdPathFromHashHexString(string hashHexString)
     {
-        return GetHashLongIdStorageSlotPath(BitConverter.ToUInt64(hashHexString.HashToByteArray(), 0));
+        return GetHashLongIdStorageSlotPath(BitConverter.ToUInt64(hashHexString.HexToByteArray(), 0));
     }
 
     public virtual IStorageSlot GetHashLongIdSlotFromHashHexString(string hashHexString)
     {
-        return GetHashLongIdStorageSlot(BitConverter.ToUInt64(hashHexString.HashToByteArray(), 0));
+        return GetHashLongIdStorageSlot(BitConverter.ToUInt64(hashHexString.HexToByteArray(), 0));
     }
     
     public virtual IStorageSlot GetHashLongIdStorageSlot(ulong hashLongId)
@@ -149,6 +149,8 @@ public class FsStorage : Storage
 
     public virtual IStorageSlot GetHashHexStringStorageSlot(string hashHexString)
     {
+        Args.ThrowIfNullOrEmpty(hashHexString, nameof(hashHexString));
+        
         List<string> parts = new List<string>();
         parts.AddRange(hashHexString.Split(2));
         parts.Add("dat");
