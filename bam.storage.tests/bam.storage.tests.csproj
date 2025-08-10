@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -8,9 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\bam.base\bam.base\bam.base.csproj" />
-      <ProjectReference Include="..\..\bam.console\bam.console\bam.console.csproj" />
-      <ProjectReference Include="..\..\bam.test\bam.test\bam.test.csproj" />
+      <ProjectReference Include="..\bam.storage.encryption\bam.storage.encryption.csproj" />
       <ProjectReference Include="..\bam.storage\bam.storage.csproj" />
     </ItemGroup>
 

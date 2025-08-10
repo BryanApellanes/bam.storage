@@ -1,6 +1,6 @@
 ﻿namespace Bam.Storage;
 
-public interface IKeyValueSaveResult
+public interface IKeyValuePairSaveResult
 {
     string Key { get; }
     bool Success { get; }

@@ -1,8 +1,8 @@
 ﻿namespace Bam.Storage;
 
-public class RawDataKeyValue : IKeyValue
+public class RawDataKeyValuePair : IKeyValuePair
 {
-    public RawDataKeyValue(IRawData rawData)
+    public RawDataKeyValuePair(IRawData rawData)
     {
         this.Key = rawData.HashHexString;
         this.Value = rawData.Value;

@@ -1,7 +1,7 @@
 ﻿
 namespace Bam.Storage;
 
-public class KeyValueSaveResult: IKeyValueSaveResult
+public class KeyValuePairSaveResult: IKeyValuePairSaveResult
 {
     public string Key { get; set; }
     public bool Success { get; set; }
