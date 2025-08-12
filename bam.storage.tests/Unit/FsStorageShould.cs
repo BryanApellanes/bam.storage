@@ -14,23 +14,7 @@ public class FsStorageShould : UnitTestMenuContainer
     public FsStorageShould(ServiceRegistry serviceRegistry) : base(serviceRegistry)
     {
     }
-
-    [UnitTest]
-    public void ReturnSamePathForHashes()
-    {
-        FsStorage storage = Get<FsStorage>();
-        string value = 256.RandomLetters();
-        byte[] valueBytes = Encoding.UTF8.GetBytes(value);
-        RawData rawData = new RawData(valueBytes);
-        string storagePath = storage.GetHashLongIdStoragePath(rawData);
-        string idPath = storage.GetHashLongIdStorageSlotPath(rawData.HashId);
-        string hashPath = storage.GetHashLongIdPathFromHashHexString(rawData.HashHexString);
-        
-        Message.PrintLine(hashPath);
-        idPath.ShouldBeEqualTo(hashPath);
-        storagePath.ShouldBeEqualTo(idPath);
-    }
-
+    
     [UnitTest]
     public void SaveFile()
     {        
@@ -49,8 +33,8 @@ public class FsStorageShould : UnitTestMenuContainer
         {
             File.Delete(expected);
         }
-        IStorage storage = new FsStorage(expected);
-        storage.Save(expected, new RawData(testData));
+        IObjectStorage objectStorage = new FsObjectStorage(expected);
+        objectStorage.Save(expected, new RawData(testData));
         File.Exists(expected).ShouldBeTrue("file was not saved");
     }
     

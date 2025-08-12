@@ -12,7 +12,7 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
     public SystemKeySet(IProtectionProvider protectionProvider)
     {
         this.ProtectionProvider = protectionProvider;
-        if (BamProfile.TryReadVaultDotSysFile(privateEccKeyFile, out string eccPrivateKeyPemCipher))
+        if (TryReadPrivateEccKeyCipher(out string eccPrivateKeyPemCipher))
         {
             AesKey key = protectionProvider.GetProtectionKey();
             string eccPrivateKeyPem = key.Decrypt(eccPrivateKeyPemCipher);
@@ -24,17 +24,27 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
             EccPublicKeyPem = eccPublicKeyPem;
         }
         
-        if (BamProfile.TryReadVaultDotSysFile(privateRsaKeyFile, out string rsaPrivateKeyPemCipher))
+        if (TryReadPrivateRsaKeyCipher(out string rsaPrivateKeyPemCipher))
         {
             AesKey key = protectionProvider.GetProtectionKey();
             string rsaPrivateKeyPem = key.Decrypt(rsaPrivateKeyPemCipher);
             RsaPrivateKeyPem = rsaPrivateKeyPem;
         }
 
-        if (BamProfile.TryReadVaultDotSysFile(publicRsaKeyFile, out string rsaublicKeyPem))
+        if (BamProfile.TryReadVaultDotSysFile(publicRsaKeyFile, out string rsapublicKeyPem))
         {
-            RsaPublicKeyPem = eccPublicKeyPem;
+            RsaPublicKeyPem = rsapublicKeyPem;
         }
+    }
+
+    protected virtual bool TryReadPrivateEccKeyCipher(out string eccPrivateKeyPemCipher)
+    {
+        return BamProfile.TryReadVaultDotSysFile(privateEccKeyFile, out eccPrivateKeyPemCipher);
+    }
+
+    protected virtual bool TryReadPrivateRsaKeyCipher(out string rsaPrivateKeyPemCipher)
+    {
+        return BamProfile.TryReadVaultDotSysFile(privateRsaKeyFile, out rsaPrivateKeyPemCipher);
     }
     
     protected IProtectionProvider ProtectionProvider { get; set; }
@@ -81,7 +91,7 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
     
     public AesKey GetAesKey()
     {
-        return GetEccKeyPair().GetAesKey();
+        return GetEccKeyPair().GetSelfAesKey();
     }
 
     public AesKey GetSharedAesKey(string otherPublicPem)

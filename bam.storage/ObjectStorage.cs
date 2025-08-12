@@ -1,6 +1,6 @@
 namespace Bam.Storage;
 
-public abstract class Storage : IStorage
+public abstract class ObjectStorage : IObjectStorage
 {
     public abstract IStorageHolder RootHolder { get; }
     public abstract IStorageSlot CurrentSlot { get; set; }
@@ -15,15 +15,9 @@ public abstract class Storage : IStorage
 
     public abstract IStorageSlot Save(string relativePath, byte[] data);
     public abstract IRawData LoadSlot(IStorageSlot slot);
-    public abstract IRawData LoadHashId(ulong hashId);
     public abstract IRawData LoadHashHexString(string hashHexString);
     public abstract IRawData Load(string relativePath);
-
-
-    protected virtual void WriteBytes(string path, byte[] data)
-    {
-        File.WriteAllBytes(path, data);
-    }
+    
 
     protected virtual byte[] ReadBytes(string path)
     {

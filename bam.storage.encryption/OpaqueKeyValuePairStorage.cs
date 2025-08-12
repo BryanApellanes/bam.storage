@@ -6,15 +6,15 @@ namespace Bam.Storage.Encryption;
 public class OpaqueKeyValuePairStorage : IKeyValuePairStorage
 {
     /// <summary>
-    /// Creates an instance of the OpaqueKeyValuePairStoragee.
+    /// Creates an instance of the OpaqueKeyValuePairStorage.
     /// </summary>
-    /// <param name="storage">The filesystem storage.</param>
+    /// <param name="objectStorage">The filesystem storage.</param>
     /// <param name="aesKeySource">The provider for the AES key used to encrypt values.</param>
     /// <param name="hmacKeyProvider">The provider for hmac keys used to obfuscate keys.</param>
     /// <remarks>Note that "Key" in this context is not a cryptographic key but the left value of a dictionary access mechanism used to access an associated value.</remarks>
-    public OpaqueKeyValuePairStorage(FsStorage storage, IAesKeySource aesKeySource, IHmacKeyProvider hmacKeyProvider)
+    public OpaqueKeyValuePairStorage(FsObjectStorage objectStorage, IAesKeySource aesKeySource, IHmacKeyProvider hmacKeyProvider)
     {
-        this.PairStorage = new FsKeyValuePairStorage(storage);
+        this.PairStorage = new FsKeyValuePairStorage(objectStorage);
         this.AesKeySource =  aesKeySource;
         this.HmacKeyProvider = hmacKeyProvider;
     }
@@ -32,7 +32,7 @@ public class OpaqueKeyValuePairStorage : IKeyValuePairStorage
         return new KeyValuePair()
         {
             Key = TransformKey(keyValuePair.Key),
-            Value = TransformValue(keyValuePair.Value),
+            Value = EncryptValue(keyValuePair.Value),
         };
     }
     
@@ -59,7 +59,7 @@ public class OpaqueKeyValuePairStorage : IKeyValuePairStorage
         return key.DoubleHmacSha256(hmacKey.ToBase64()).ToBase64();
     }
 
-    protected virtual byte[] TransformValue(byte[] value)
+    protected virtual byte[] EncryptValue(byte[] value)
     {
         AesKey aesKey = AesKeySource.GetAesKey();
         return aesKey.EncryptBytes(value);

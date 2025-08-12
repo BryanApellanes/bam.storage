@@ -1,6 +1,6 @@
 namespace Bam.Storage;
 
-public interface IStorage : IRawStorage
+public interface IObjectStorage : IRawStorage
 {
     IStorageHolder RootHolder { get; }
     IStorageSlot CurrentSlot { get; set; }

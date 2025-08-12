@@ -1,46 +1,38 @@
 namespace Bam.Storage;
 
-public class FsStorageSlot : IStorageSlot
+public class FsStorageSlot : StorageSlot
 {
     public FsStorageSlot(): this("dat")
     {
     }
 
-    public FsStorageSlot(IStorageHolder storageHolder, string relativePath) : this(relativePath)
+    public FsStorageSlot(string relativePath) : base(relativePath)
     {
-        this.StorageHolder = storageHolder;
+    }
+    
+    public FsStorageSlot(IStorageHolder storageHolder, string relativePath) : base(storageHolder, relativePath)
+    {
     }
 
-    public FsStorageSlot(string relativePath)
+    public override void SetData(IRawData rawData)
     {
-        this.StorageHolder = DirectoryStorageHolder.WorkingDirectoryHolder;
-        this.Name = relativePath;
-    }
-
-    public virtual string? FullName => Path.Combine(StorageHolder.FullName, Name);
-
-    public IStorageHolder? StorageHolder { get; protected set; }
-    public virtual string Name { get; }
-
-    private IRawData _data;
-    public virtual IRawData? GetData()
-    {
-        if (_data != null)
-        {
-            return _data;
-        }
-
         string filePath = FullName;
-        if (File.Exists(filePath))
+        FileInfo fileInfo = new FileInfo(filePath);
+        if (!fileInfo.Exists)
         {
-            _data = new RawData(File.ReadAllBytes(filePath));
+            fileInfo.Directory.Create();
         }
-
-        return _data;
+        File.WriteAllBytes(filePath, rawData.Value);
+        this.RawData = rawData;
     }
-
-    public virtual void SetData(IRawData rawData)
+    
+    public static IStorageSlot GetSegmentedPathStorageSlot(IStorageHolder rootHolder, string hashHexString)
     {
-        this._data = rawData;
+        Args.ThrowIfNullOrEmpty(hashHexString, nameof(hashHexString));
+        
+        List<string> parts = new List<string>();
+        parts.AddRange(hashHexString.Split(2));
+        parts.Add("dat");
+        return new FsStorageSlot(rootHolder, Path.Combine(parts.ToArray()));
     }
 }
