@@ -33,8 +33,8 @@ public class FsStorageShould : UnitTestMenuContainer
         {
             File.Delete(expected);
         }
-        IObjectStorage objectStorage = new FsObjectStorage(expected);
-        objectStorage.Save(expected, new RawData(testData));
+        ISlottedStorage slottedStorage = new FsSlottedStorage(expected);
+        slottedStorage.Save(expected, new RawData(testData));
         File.Exists(expected).ShouldBeTrue("file was not saved");
     }
     

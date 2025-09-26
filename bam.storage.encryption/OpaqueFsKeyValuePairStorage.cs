@@ -3,18 +3,18 @@ using Bam.Encryption;
 
 namespace Bam.Storage.Encryption;
 
-public class OpaqueKeyValuePairStorage : IKeyValuePairStorage
+public class OpaqueFsKeyValuePairStorage : IKeyValuePairStorage
 {
     /// <summary>
     /// Creates an instance of the OpaqueKeyValuePairStorage.
     /// </summary>
-    /// <param name="objectStorage">The filesystem storage.</param>
+    /// <param name="slottedStorage">The filesystem storage.</param>
     /// <param name="aesKeySource">The provider for the AES key used to encrypt values.</param>
     /// <param name="hmacKeyProvider">The provider for hmac keys used to obfuscate keys.</param>
     /// <remarks>Note that "Key" in this context is not a cryptographic key but the left value of a dictionary access mechanism used to access an associated value.</remarks>
-    public OpaqueKeyValuePairStorage(FsObjectStorage objectStorage, IAesKeySource aesKeySource, IHmacKeyProvider hmacKeyProvider)
+    public OpaqueFsKeyValuePairStorage(FsSlottedStorage slottedStorage, IAesKeySource aesKeySource, IHmacKeyProvider hmacKeyProvider)
     {
-        this.PairStorage = new FsKeyValuePairStorage(objectStorage);
+        this.PairStorage = new FsKeyValuePairStorage(slottedStorage);
         this.AesKeySource =  aesKeySource;
         this.HmacKeyProvider = hmacKeyProvider;
     }
@@ -35,7 +35,13 @@ public class OpaqueKeyValuePairStorage : IKeyValuePairStorage
             Value = EncryptValue(keyValuePair.Value),
         };
     }
-    
+
+
+    public IKeyValuePairSaveResult Save(string key, string value)
+    {
+        return Save(new KeyValuePair(key, value));
+    }
+
     public IKeyValuePairSaveResult Save(IKeyValuePair keyValuePair)
     {
         return PairStorage.Save(Transform(keyValuePair));
@@ -55,7 +61,7 @@ public class OpaqueKeyValuePairStorage : IKeyValuePairStorage
 
     protected virtual string TransformKey(string key)
     {
-        byte[] hmacKey = HmacKeyProvider.GetNamedHmacKey(nameof(OpaqueKeyValuePairStorage));
+        byte[] hmacKey = HmacKeyProvider.GetNamedHmacKey(nameof(OpaqueFsKeyValuePairStorage));
         return key.DoubleHmacSha256(hmacKey.ToBase64()).ToBase64();
     }
 

@@ -12,7 +12,7 @@ public class SystemKeyValuePairStorageShould : UnitTestMenuContainer
     [UnitTest]
     public async Task SaveAndRetrieve()
     {
-        SystemKeyValuePairStorage storage = new SystemKeyValuePairStorage();
+        SystemFsKeyValuePairStorage storage = new SystemFsKeyValuePairStorage();
         storage.Save(new Bam.Storage.KeyValuePair("key1", Encoding.UTF8.GetBytes("value1")));
 
         IKeyValuePair kv = storage.Get("key1");

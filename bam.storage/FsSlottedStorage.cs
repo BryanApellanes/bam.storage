@@ -1,19 +1,19 @@
 namespace Bam.Storage;
 
-public class FsObjectStorage : ObjectStorage
+public class FsSlottedStorage : SlottedStorage
 {
-    public static implicit operator DirectoryInfo(FsObjectStorage objectStorage)
+    public static implicit operator DirectoryInfo(FsSlottedStorage slottedStorage)
     {
-        return objectStorage.Directory;
+        return slottedStorage.Directory;
     }
     
-    public FsObjectStorage()
+    public FsSlottedStorage()
     {
         this.Directory = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "storage"));
         this.RootHolder = new FsStorageHolder(this.Directory);
     }
 
-    public FsObjectStorage(string path)
+    public FsSlottedStorage(string path)
     {
         this.Directory = new DirectoryInfo(path);
         this.RootHolder = new FsStorageHolder(this.Directory);
@@ -63,7 +63,7 @@ public class FsObjectStorage : ObjectStorage
     public override IStorageSlot Save(IStorageSlot slot, IRawData rawData)
     {
         Args.ThrowIfNull(RootHolder, nameof(RootHolder));
-        Args.ThrowIf(!slot.StorageHolder.FullName.StartsWith(RootHolder.FullName, StringComparison.InvariantCultureIgnoreCase), $"{nameof(FsObjectStorage)}:: slot is in {slot.StorageHolder.FullName} not in storage root {RootHolder.FullName}");
+        Args.ThrowIf(!slot.StorageHolder.FullName.StartsWith(RootHolder.FullName, StringComparison.InvariantCultureIgnoreCase), $"{nameof(FsSlottedStorage)}:: slot is in {slot.StorageHolder.FullName} not in storage root {RootHolder.FullName}");
         
         slot.SetData(rawData);
         return slot;
@@ -84,18 +84,8 @@ public class FsObjectStorage : ObjectStorage
         return slot.GetData();
     }
     
-    public virtual string GetHashHexStringStoragePath(IRawData data)
-    {
-        return GetHashHexStringStorageSlotPath(data.HashHexString);
-    }
-
     public virtual IStorageSlot GetHashHexStringStorageSlot(string hashHexString)
     {
         return FsStorageSlot.GetSegmentedPathStorageSlot(RootHolder, hashHexString);
-    }
-    
-    public virtual string GetHashHexStringStorageSlotPath(string hashHexString)
-    {
-        return GetHashHexStringStorageSlot(hashHexString).FullName;
     }
 }

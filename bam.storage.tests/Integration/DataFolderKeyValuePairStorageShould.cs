@@ -12,7 +12,7 @@ public class DataFolderKeyValuePairStorageShould : UnitTestMenuContainer
     [UnitTest]
     public async Task SaveAndRetrieve()
     {
-        DataFolderKeyValuePairStorage storage = new DataFolderKeyValuePairStorage();
+        DataFolderOpaqueFsKeyValuePairStorage storage = new DataFolderOpaqueFsKeyValuePairStorage();
         storage.Save(new Bam.Storage.KeyValuePair("key1", Encoding.UTF8.GetBytes("value1")));
 
         IKeyValuePair kv = storage.Get("key1");

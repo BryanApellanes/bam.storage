@@ -1,6 +1,6 @@
 namespace Bam.Storage;
 
-public abstract class ObjectStorage : IObjectStorage
+public abstract class SlottedStorage : ISlottedStorage
 {
     public abstract IStorageHolder RootHolder { get; }
     public abstract IStorageSlot CurrentSlot { get; set; }

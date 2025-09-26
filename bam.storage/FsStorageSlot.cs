@@ -26,7 +26,7 @@ public class FsStorageSlot : StorageSlot
         this.RawData = rawData;
     }
     
-    public static IStorageSlot GetSegmentedPathStorageSlot(IStorageHolder rootHolder, string hashHexString)
+    /*public static IStorageSlot GetSegmentedPathStorageSlot(IStorageHolder rootHolder, string hashHexString)
     {
         Args.ThrowIfNullOrEmpty(hashHexString, nameof(hashHexString));
         
@@ -34,5 +34,5 @@ public class FsStorageSlot : StorageSlot
         parts.AddRange(hashHexString.Split(2));
         parts.Add("dat");
         return new FsStorageSlot(rootHolder, Path.Combine(parts.ToArray()));
-    }
+    }*/
 }

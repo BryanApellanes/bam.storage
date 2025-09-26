@@ -18,16 +18,10 @@ public class OpaqueFsRawStorageShould : UnitTestMenuContainer
         OpaqueFsRawStorage storage = new OpaqueFsRawStorage(aesKey, new HmacKeyProvider(), $"{nameof(OpaqueFsRawStorageShould)}_{nameof(SaveAndRetrieveRawData)}");
         IRawData data = new RawData(testData);
         IStorageSlot slot = storage.Save(data);
-
-        //byte[] value = slot.GetData().Value;
-        //string retrievedFromSlot = Encoding.UTF8.GetString(value);
-
+        
         IRawData rawFromStorage = storage.LoadHashHexString(data.HashHexString);
         string retrievedFromStorage = Encoding.UTF8.GetString(rawFromStorage.Value);
-
-        //retrievedFromSlot.ShouldNotBeNull();
-        //retrievedFromSlot.ShouldEqual(testData);
-
+        
         retrievedFromStorage.ShouldNotBeNull();
         retrievedFromStorage.ShouldEqual(testData);
     }

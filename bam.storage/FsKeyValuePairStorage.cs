@@ -4,28 +4,33 @@ public class FsKeyValuePairStorage : IKeyValuePairStorage
 {
     public FsKeyValuePairStorage()
     {
-        this.FsObjectStorage = new FsObjectStorage();
+        this.FsSlottedStorage = new FsSlottedStorage();
     }
 
     public FsKeyValuePairStorage(string rootPath)
     {
-        this.FsObjectStorage = new FsObjectStorage(rootPath);
+        this.FsSlottedStorage = new FsSlottedStorage(rootPath);
     }
 
-    public FsKeyValuePairStorage(FsObjectStorage objectStorage)
+    public FsKeyValuePairStorage(FsSlottedStorage slottedStorage)
     {
-        this.FsObjectStorage = objectStorage;
+        this.FsSlottedStorage = slottedStorage;
     }
     
-    protected FsObjectStorage FsObjectStorage { get; set; }
-    
+    protected FsSlottedStorage FsSlottedStorage { get; set; }
+
+    public IKeyValuePairSaveResult Save(string key, string value)
+    {
+        return Save(new KeyValuePair(key, value));
+    }
+
     public virtual IKeyValuePairSaveResult Save(IKeyValuePair keyValuePair)
     {
         Args.ThrowIfNull(keyValuePair, nameof(keyValuePair));
         try
         {
-            IStorageSlot slot = FsObjectStorage.GetHashHexStringStorageSlot(keyValuePair.Key);
-            FsObjectStorage.Save(slot, keyValuePair.Value);
+            IStorageSlot slot = FsSlottedStorage.GetHashHexStringStorageSlot(keyValuePair.Key);
+            FsSlottedStorage.Save(slot, keyValuePair.Value);
             return new KeyValuePairSaveResult()
             {
                 Success = true,
@@ -45,7 +50,7 @@ public class FsKeyValuePairStorage : IKeyValuePairStorage
 
     public virtual IKeyValuePair Get(string key)
     {
-        IStorageSlot slot = FsObjectStorage.GetHashHexStringStorageSlot(key);
+        IStorageSlot slot = FsSlottedStorage.GetHashHexStringStorageSlot(key);
         IRawData rawData = slot.GetData();
         return new KeyValuePair()
         {

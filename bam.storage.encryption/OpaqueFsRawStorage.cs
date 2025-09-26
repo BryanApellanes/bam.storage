@@ -7,49 +7,35 @@ public class OpaqueFsRawStorage : FsRawStorage
 {
     public OpaqueFsRawStorage(IAesKeySource aesKeySource, IHmacKeyProvider hmacKeyProvider) : base()
     {
-        this.AesKeySource = aesKeySource;
-        this.HmacKeyProvider = hmacKeyProvider;
+        this.OpaquenessProvider = new OpaquenessProvider(aesKeySource, hmacKeyProvider);
     }
     
     public OpaqueFsRawStorage(IAesKeySource aesKeySource, IHmacKeyProvider hmacKeyProvider, IStorageHolder rootHolder) : base(rootHolder)
     {
-        this.AesKeySource = aesKeySource;
-        this.HmacKeyProvider = hmacKeyProvider;
+        this.OpaquenessProvider = new OpaquenessProvider(aesKeySource, hmacKeyProvider);
     }
     
     public OpaqueFsRawStorage(IAesKeySource aesKeySource, IHmacKeyProvider hmacKeyProvider, string rootPath) : base(rootPath)
     {
-        this.AesKeySource = aesKeySource;
-        this.HmacKeyProvider = hmacKeyProvider;
+        this.OpaquenessProvider = new OpaquenessProvider(aesKeySource, hmacKeyProvider);
     }
 
-    protected IAesKeySource AesKeySource { get; set; }
-    protected IHmacKeyProvider HmacKeyProvider { get; set; }
+    protected OpaquenessProvider OpaquenessProvider { get; set; }
     
     public IRawData LoadHashHexString(string hashHexString)
     {
-        string hmacPath = TransformHashHexString(hashHexString);
+        string hmacPath = OpaquenessProvider.TransformHashHexString(hashHexString);//TransformHashHexString(hashHexString);
         IStorageSlot hmacSlot = FsStorageSlot.GetSegmentedPathStorageSlot(RootHolder, hmacPath);
         IRawData encrypted = hmacSlot.GetData();
-        AesKey aesKey = AesKeySource.GetAesKey();
-        byte[] bytes = aesKey.DecryptBytes(encrypted.Value);
-        return new RawData(bytes);
+        return OpaquenessProvider.Decrypt(encrypted);
     }
 
     public override IStorageSlot Save(IRawData rawData)
     {
-        string hmacPath = TransformHashHexString(rawData.HashHexString);
-        IStorageSlot hmacSlot = FsStorageSlot.GetSegmentedPathStorageSlot(RootHolder, hmacPath);
-        AesKey aesKey = AesKeySource.GetAesKey();
-        byte[] encryptedBytes = aesKey.EncryptBytes(rawData.Value);
-        RawData encrypted = new RawData(encryptedBytes);
+        string doubleHmac = OpaquenessProvider.TransformHashHexString(rawData.HashHexString);//TransformHashHexString(rawData.HashHexString);
+        IStorageSlot hmacSlot = FsStorageSlot.GetSegmentedPathStorageSlot(RootHolder, doubleHmac);
+        IRawData encrypted = OpaquenessProvider.Encrypt(rawData);
         hmacSlot.SetData(encrypted);
         return hmacSlot;
-    }
-    
-    protected string TransformHashHexString(string hashHexString)
-    {
-        byte[] hmacKey = HmacKeyProvider.GetNamedHmacKey(nameof(OpaqueFsRawStorage));
-        return hashHexString.DoubleHmacSha256(hmacKey.ToBase64()).ToHexString();
     }
 }
