@@ -6,7 +6,7 @@ public class FsSlotReader : ISlotReader
 {
     public FsSlotReader()
     {
-        this.DataTypeTranslator = Bam.Data.DataTypeTranslator.Default;
+        this.DataTypeTranslator = Bam.Storage.Data.DataTypeTranslator.Default;
     }
     
     protected IDataTypeTranslator DataTypeTranslator { get; }
