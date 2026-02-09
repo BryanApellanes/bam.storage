@@ -1,5 +1,6 @@
 ﻿
 using Bam.Encryption;
+using System.Text;
 
 namespace Bam.Storage.Encryption;
 
@@ -36,6 +37,10 @@ public class OpaqueFsKeyValuePairStorage : IKeyValuePairStorage
         };
     }
 
+    public IKeyValuePairSaveResult Save(string key, byte[] value)
+    {
+        return Save(new KeyValuePair(key, value));
+    }
 
     public IKeyValuePairSaveResult Save(string key, string value)
     {
@@ -62,7 +67,7 @@ public class OpaqueFsKeyValuePairStorage : IKeyValuePairStorage
     protected virtual string TransformKey(string key)
     {
         byte[] hmacKey = HmacKeyProvider.GetNamedHmacKey(nameof(OpaqueFsKeyValuePairStorage));
-        return key.DoubleHmacSha256(hmacKey.ToBase64()).ToBase64();
+        return key.DoubleHmacSha256(hmacKey).ToBase64();
     }
 
     protected virtual byte[] EncryptValue(byte[] value)

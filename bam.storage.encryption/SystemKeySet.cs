@@ -1,7 +1,13 @@
 ﻿using Bam.Encryption;
+using System.Text;
 
 namespace Bam.Storage.Encryption;
 
+/// <summary>
+/// Provides basic access to the system's ECC and RSA key pairs stored in the vault.sys files.
+/// System level protection of the files should be limited to the system user account only.
+/// The IProtectionProvider is used to protect the private keys from casual access when stored on disk.
+/// </summary>
 public class SystemKeySet : IAesKeySource, IRsaKeySource
 {
     private const string privateEccKeyFile = "eccpr.sys";
@@ -9,17 +15,17 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
     private const string privateRsaKeyFile = "rsapr.sys";
     private const string publicRsaKeyFile = "rsapu.sys";
     
-    public SystemKeySet(IProtectionProvider protectionProvider)
+    public SystemKeySet(IProtectionProvider protectionProvider, Encoding? encoding = null)
     {
         this.ProtectionProvider = protectionProvider;
         if (TryReadPrivateEccKeyCipher(out string eccPrivateKeyPemCipher))
         {
             AesKey key = protectionProvider.GetProtectionKey();
-            string eccPrivateKeyPem = key.Decrypt(eccPrivateKeyPemCipher);
+            byte[] eccPrivateKeyPem = (encoding ?? Encoding.UTF8).GetBytes(key.Decrypt(eccPrivateKeyPemCipher));
             EccPrivateKeyPem = eccPrivateKeyPem;
         }
 
-        if (BamProfile.TryReadVaultDotSysFile(publicEccKeyFile, out string eccPublicKeyPem))
+        if (BamProfile.TryReadVaultDotSysFileString(publicEccKeyFile, out string eccPublicKeyPem))
         {
             EccPublicKeyPem = eccPublicKeyPem;
         }
@@ -27,11 +33,11 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
         if (TryReadPrivateRsaKeyCipher(out string rsaPrivateKeyPemCipher))
         {
             AesKey key = protectionProvider.GetProtectionKey();
-            string rsaPrivateKeyPem = key.Decrypt(rsaPrivateKeyPemCipher);
+            byte[] rsaPrivateKeyPem = (encoding ?? Encoding.UTF8).GetBytes(key.Decrypt(rsaPrivateKeyPemCipher));
             RsaPrivateKeyPem = rsaPrivateKeyPem;
         }
 
-        if (BamProfile.TryReadVaultDotSysFile(publicRsaKeyFile, out string rsapublicKeyPem))
+        if (BamProfile.TryReadVaultDotSysFileString(publicRsaKeyFile, out string rsapublicKeyPem))
         {
             RsaPublicKeyPem = rsapublicKeyPem;
         }
@@ -39,12 +45,12 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
 
     protected virtual bool TryReadPrivateEccKeyCipher(out string eccPrivateKeyPemCipher)
     {
-        return BamProfile.TryReadVaultDotSysFile(privateEccKeyFile, out eccPrivateKeyPemCipher);
+        return BamProfile.TryReadVaultDotSysFileString(privateEccKeyFile, out eccPrivateKeyPemCipher);
     }
 
     protected virtual bool TryReadPrivateRsaKeyCipher(out string rsaPrivateKeyPemCipher)
     {
-        return BamProfile.TryReadVaultDotSysFile(privateRsaKeyFile, out rsaPrivateKeyPemCipher);
+        return BamProfile.TryReadVaultDotSysFileString(privateRsaKeyFile, out rsaPrivateKeyPemCipher);
     }
     
     protected IProtectionProvider ProtectionProvider { get; set; }
@@ -57,10 +63,10 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
         set => _current = new Lazy<SystemKeySet>(value);
     }
     
-    public string EccPrivateKeyPem { get; set; }
+    public byte[] EccPrivateKeyPem { get; set; }
     public string EccPublicKeyPem { get; set; }
     
-    public string RsaPrivateKeyPem { get; set; }
+    public byte[] RsaPrivateKeyPem { get; set; }
     public string RsaPublicKeyPem { get; set; }
 
     private EccKeyPair _eccKeyPair;
@@ -72,7 +78,7 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
             return _eccKeyPair;
         }
         EccKeyPair eccKeyPair;
-        if (!string.IsNullOrEmpty(EccPrivateKeyPem))
+        if (EccPrivateKeyPem != null && EccPrivateKeyPem.Length > 0)
         {
             eccKeyPair = new EccKeyPair(new EccPublicPrivateKeyPair(EccPrivateKeyPem));
             EccPublicKeyPem = eccKeyPair.PublicKey.Value.ToPem();
@@ -80,7 +86,7 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
         else
         {
             eccKeyPair = new EccKeyPair();
-            EccPrivateKeyPem = eccKeyPair.PrivatePem;
+            EccPrivateKeyPem = eccKeyPair.Pem;
             EccPublicKeyPem = eccKeyPair.PublicPem;
         }
         _eccKeyPair = eccKeyPair;
@@ -112,7 +118,7 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
             return _rsaKeyPair.Value;
         }
         RsaKeyPair rsaKeyPair;
-        if (!string.IsNullOrEmpty(EccPrivateKeyPem))
+        if (EccPrivateKeyPem != null && EccPrivateKeyPem.Length > 0)
         {
             rsaKeyPair = new RsaKeyPair(new RsaPublicPrivateKeyPair(RsaPrivateKeyPem));
             RsaPublicKeyPem = rsaKeyPair.PublicKey.Value.ToPem();
@@ -120,7 +126,7 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
         else
         {
             rsaKeyPair = new RsaKeyPair();
-            RsaPrivateKeyPem = rsaKeyPair.PrivatePem;
+            RsaPrivateKeyPem = rsaKeyPair.Pem;
             RsaPublicKeyPem = rsaKeyPair.PublicPem;
         }
         _rsaKeyPair = rsaKeyPair;
@@ -132,14 +138,14 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
     protected virtual void WriteEccPrivateKey()
     {
         AesKey key = ProtectionProvider.GetProtectionKey();
-        string cipher = key.Encrypt(EccPrivateKeyPem);
-        BamProfile.WriteVaultDotSysFile(privateEccKeyFile, cipher);
+        byte[] cipher = key.EncryptBytes(EccPrivateKeyPem);
+        BamProfile.WriteVaultDotSysFile(privateEccKeyFile, cipher.ToBase64());
     }
 
     protected virtual void WriteRsaPrivateKey()
     {
         AesKey key = ProtectionProvider.GetProtectionKey();
-        string cipher = key.Encrypt(RsaPrivateKeyPem);
-        BamProfile.WriteVaultDotSysFile(privateRsaKeyFile, cipher);
+        byte[] cipher = key.EncryptBytes(RsaPrivateKeyPem);
+        BamProfile.WriteVaultDotSysFile(privateRsaKeyFile, cipher.ToBase64());
     }
 }
