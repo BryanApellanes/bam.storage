@@ -6,23 +6,32 @@ using Bam.Test;
 
 namespace Bam.Application.Integration;
 
-
 [UnitTestMenu("OpaqueFsRawStorageShould")]
 public class OpaqueFsRawStorageShould : UnitTestMenuContainer
 {
     [UnitTest]
-    public async Task SaveAndRetrieveRawData()
+    public void SaveAndRetrieveRawData()
     {
         string testData = "this is test data";
-        AesKey aesKey = new AesKey();
-        OpaqueFsRawStorage storage = new OpaqueFsRawStorage(aesKey, new HmacKeyProvider(), $"{nameof(OpaqueFsRawStorageShould)}_{nameof(SaveAndRetrieveRawData)}");
-        IRawData data = new RawData(testData);
-        IStorageSlot slot = storage.Save(data);
-        
-        IRawData rawFromStorage = storage.LoadHashHexString(data.HashHexString);
-        string retrievedFromStorage = Encoding.UTF8.GetString(rawFromStorage.Value);
-        
-        retrievedFromStorage.ShouldNotBeNull();
-        retrievedFromStorage.ShouldEqual(testData);
+
+        When.A<OpaqueFsRawStorage>("saves and retrieves encrypted raw data",
+            () => new OpaqueFsRawStorage(new AesKey(), new HmacKeyProvider(), $"{nameof(OpaqueFsRawStorageShould)}_{nameof(SaveAndRetrieveRawData)}"),
+            (storage) =>
+            {
+                IRawData data = new RawData(testData);
+                IStorageSlot slot = storage.Save(data);
+                IRawData rawFromStorage = storage.LoadHashHexString(data.HashHexString);
+                string retrievedFromStorage = Encoding.UTF8.GetString(rawFromStorage.Value);
+                return retrievedFromStorage;
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            string retrieved = (string)because.Result;
+            because.ItsTrue("retrieved is not null", retrieved != null);
+            because.ItsTrue("retrieved equals original", testData.Equals(retrieved));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 }

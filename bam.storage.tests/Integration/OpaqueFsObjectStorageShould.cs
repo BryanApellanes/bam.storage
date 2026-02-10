@@ -8,27 +8,38 @@ using Bam.Test;
 
 namespace Bam.Application.Integration;
 
-
 [UnitTestMenu("OpaqueFsObjectStorageShould")]
 public class OpaqueFsObjectStorageShould : UnitTestMenuContainer
 {
     [UnitTest]
-    public async Task SaveAndRetrieve()
+    public void SaveAndRetrieve()
     {
         string testValue = 16.RandomLetters();
-        ServiceRegistry registry = Configure(svcReg =>
-        {
-            svcReg.For<IAesKeySource>().UseSingleton(new AesKey());
-            svcReg.For<IHmacKeyProvider>().Use<HmacKeyProvider>();
-        });
-        OpaqueFsSlottedStorage storage = registry.Get<OpaqueFsSlottedStorage>();
-        RawData data = new RawData(testValue);
-        IStorageSlot slot = storage.Save(data);
 
-        IRawData loaded = storage.LoadHashHexString(data.HashHexString);
-        string value = Encoding.UTF8.GetString(loaded.Value);
-        
-        value.ShouldEqual(testValue);
-        Message.PrintLine(testValue);
+        When.A<OpaqueFsSlottedStorage>("saves and retrieves opaque data",
+            () =>
+            {
+                ServiceRegistry registry = Configure(svcReg =>
+                {
+                    svcReg.For<IAesKeySource>().UseSingleton(new AesKey());
+                    svcReg.For<IHmacKeyProvider>().Use<HmacKeyProvider>();
+                });
+                return registry.Get<OpaqueFsSlottedStorage>();
+            },
+            (storage) =>
+            {
+                RawData data = new RawData(testValue);
+                IStorageSlot slot = storage.Save(data);
+                IRawData loaded = storage.LoadHashHexString(data.HashHexString);
+                string value = Encoding.UTF8.GetString(loaded.Value);
+                return value;
+            })
+        .TheTest
+        .ShouldPass(because =>
+        {
+            because.ItsTrue("retrieved value equals original", testValue.Equals((string)because.Result));
+        })
+        .SoBeHappy()
+        .UnlessItFailed();
     }
 }
