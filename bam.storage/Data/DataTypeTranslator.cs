@@ -12,6 +12,9 @@ namespace Bam.Storage.Data
     {
         private static readonly object _dataTypeTranslatorLock = new object();
         private static IDataTypeTranslator _dafault;
+        /// <summary>
+        /// Gets or sets the default singleton instance of <see cref="IDataTypeTranslator"/>.
+        /// </summary>
         public static IDataTypeTranslator Default
         {
             get
@@ -20,7 +23,13 @@ namespace Bam.Storage.Data
             }
             set => _dafault = value;
         }
-        
+
+        /// <summary>
+        /// Converts a CLR <see cref="Type"/> to its corresponding <see cref="DataTypes"/> enum value.
+        /// Returns <see cref="DataTypes.Default"/> for null or unrecognized types.
+        /// </summary>
+        /// <param name="type">The CLR type to convert.</param>
+        /// <returns>The corresponding <see cref="DataTypes"/> value.</returns>
         public virtual DataTypes EnumFromType(Type type)
         {
             if (type == typeof(object) || type == null)
@@ -76,11 +85,21 @@ namespace Bam.Storage.Data
             return DataTypes.Default;
         }
         
+        /// <summary>
+        /// Converts a database data type name (e.g., "varchar", "bigint") to its corresponding CLR <see cref="Type"/>.
+        /// </summary>
+        /// <param name="dbDataType">The database data type name.</param>
+        /// <returns>The corresponding CLR type.</returns>
         public virtual Type TypeFromDbDataType(string dbDataType)
         {
             return TypeFromDataType(TranslateDataType(dbDataType));
         }
 
+        /// <summary>
+        /// Converts a <see cref="DataTypes"/> enum value to its corresponding CLR <see cref="Type"/>.
+        /// </summary>
+        /// <param name="dataType">The data type enum value.</param>
+        /// <returns>The corresponding CLR type.</returns>
         public virtual Type TypeFromDataType(DataTypes dataType)
         {
             switch (dataType)
@@ -110,6 +129,12 @@ namespace Bam.Storage.Data
             }
         }
 
+        /// <summary>
+        /// Translates a database data type name (e.g., "varchar", "bigint", "blob") to a <see cref="DataTypes"/> enum value.
+        /// Defaults to <see cref="DataTypes.String"/> for unrecognized types.
+        /// </summary>
+        /// <param name="dbDataType">The database data type name (case-insensitive).</param>
+        /// <returns>The corresponding <see cref="DataTypes"/> value.</returns>
         public virtual DataTypes TranslateDataType(string dbDataType)
         {
             string dataType = dbDataType.ToLowerInvariant();

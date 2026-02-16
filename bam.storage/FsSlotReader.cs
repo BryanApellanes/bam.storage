@@ -2,15 +2,32 @@ using Bam.Data;
 
 namespace Bam.Storage;
 
+/// <summary>
+/// Reads typed values from file-system storage slots by converting raw byte data to the requested
+/// CLR type using <see cref="BitConverter"/> for primitives and parsing for date/string types.
+/// </summary>
 public class FsSlotReader : ISlotReader
 {
+    /// <summary>
+    /// Initializes a new instance of <see cref="FsSlotReader"/> using the default data type translator.
+    /// </summary>
     public FsSlotReader()
     {
         this.DataTypeTranslator = Bam.Storage.Data.DataTypeTranslator.Default;
     }
-    
+
+    /// <summary>
+    /// Gets the data type translator used to determine the CLR type from the requested generic type parameter.
+    /// </summary>
     protected IDataTypeTranslator DataTypeTranslator { get; }
 
+    /// <summary>
+    /// Attempts to read a typed value from the specified storage slot without throwing on failure.
+    /// </summary>
+    /// <typeparam name="T">The type to deserialize the slot data as.</typeparam>
+    /// <param name="slot">The storage slot to read from.</param>
+    /// <param name="value">When this method returns, contains the deserialized value if successful, or the default value if not.</param>
+    /// <returns><c>true</c> if the slot was read and deserialized successfully; otherwise, <c>false</c>.</returns>
     public bool TryReadSlot<T>(IStorageSlot slot, out T value)
     {
         value = default;
@@ -25,6 +42,12 @@ public class FsSlotReader : ISlotReader
         }
     }
 
+    /// <summary>
+    /// Reads and deserializes a typed value from the specified storage slot.
+    /// </summary>
+    /// <typeparam name="T">The type to deserialize the slot data as.</typeparam>
+    /// <param name="slot">The storage slot to read from.</param>
+    /// <returns>The deserialized value of type <typeparamref name="T"/>.</returns>
     public T ReadSlot<T>(IStorageSlot slot)
     {
         return (T)ReadSlot(slot, typeof(T));

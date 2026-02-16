@@ -15,6 +15,12 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
     private const string privateRsaKeyFile = "rsapr.sys";
     private const string publicRsaKeyFile = "rsapu.sys";
     
+    /// <summary>
+    /// Initializes a new instance of <see cref="SystemKeySet"/> by reading and decrypting the ECC and RSA key pairs
+    /// from the vault.sys directory using the specified protection provider.
+    /// </summary>
+    /// <param name="protectionProvider">The protection provider supplying the AES key used to decrypt stored private keys.</param>
+    /// <param name="encoding">The text encoding to use when converting key PEM data, or null for UTF-8.</param>
     public SystemKeySet(IProtectionProvider protectionProvider, Encoding? encoding = null)
     {
         this.ProtectionProvider = protectionProvider;
@@ -57,20 +63,43 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
 
     private static Lazy<SystemKeySet> _current = new Lazy<SystemKeySet>(new SystemKeySet(new SystemKeyProtectionProvider()));
 
+    /// <summary>
+    /// Gets or sets the current global singleton <see cref="SystemKeySet"/> instance, lazily initialized
+    /// using the <see cref="SystemKeyProtectionProvider"/>.
+    /// </summary>
     public static SystemKeySet Current
     {
         get => _current.Value;
         set => _current = new Lazy<SystemKeySet>(value);
     }
-    
+
+    /// <summary>
+    /// Gets or sets the ECC private key in PEM format as raw bytes.
+    /// </summary>
     public byte[] EccPrivateKeyPem { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ECC public key in PEM format as a string.
+    /// </summary>
     public string EccPublicKeyPem { get; set; }
-    
+
+    /// <summary>
+    /// Gets or sets the RSA private key in PEM format as raw bytes.
+    /// </summary>
     public byte[] RsaPrivateKeyPem { get; set; }
+
+    /// <summary>
+    /// Gets or sets the RSA public key in PEM format as a string.
+    /// </summary>
     public string RsaPublicKeyPem { get; set; }
 
     private EccKeyPair _eccKeyPair;
     
+    /// <summary>
+    /// Gets the ECC key pair, loading it from the stored private key PEM if available, or generating a new one
+    /// and persisting it to the vault.sys directory. The result is cached for subsequent calls.
+    /// </summary>
+    /// <returns>The ECC key pair.</returns>
     public EccKeyPair GetEccKeyPair()
     {
         if (_eccKeyPair != null)
@@ -95,22 +124,40 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
         return eccKeyPair;
     }
     
+    /// <summary>
+    /// Gets an AES key derived from the ECC key pair's self-shared secret.
+    /// </summary>
+    /// <returns>An AES key derived from the ECC key pair.</returns>
     public AesKey GetAesKey()
     {
         return GetEccKeyPair().GetSelfAesKey();
     }
 
+    /// <summary>
+    /// Gets a shared AES key derived from this system's ECC key pair and another party's public key PEM.
+    /// </summary>
+    /// <param name="otherPublicPem">The other party's ECC public key in PEM format.</param>
+    /// <returns>A shared AES key for secure communication with the other party.</returns>
     public AesKey GetSharedAesKey(string otherPublicPem)
     {
         return  GetEccKeyPair().GetSharedAesKey(otherPublicPem);
     }
     
+    /// <summary>
+    /// Gets the RSA public key extracted from the RSA key pair.
+    /// </summary>
+    /// <returns>The RSA public key.</returns>
     public RsaPublicKey GetRsaPublicKey()
     {
         return GetRsaKey().GetRsaPublicKey();
     }
 
     RsaKeyPair _rsaKeyPair;
+    /// <summary>
+    /// Gets the RSA public-private key pair, loading it from the stored private key PEM if available,
+    /// or generating a new one and persisting it to the vault.sys directory. The result is cached for subsequent calls.
+    /// </summary>
+    /// <returns>The RSA public-private key pair.</returns>
     public RsaPublicPrivateKeyPair GetRsaKey()
     {
         if (_rsaKeyPair != null)
