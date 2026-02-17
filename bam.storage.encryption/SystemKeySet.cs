@@ -31,9 +31,9 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
             EccPrivateKeyPem = eccPrivateKeyPem;
         }
 
-        if (BamProfile.TryReadVaultDotSysFileString(publicEccKeyFile, out string eccPublicKeyPem))
+        if (BamProfile.TryReadVaultDotSysFileString(publicEccKeyFile, out string? eccPublicKeyPem))
         {
-            EccPublicKeyPem = eccPublicKeyPem;
+            EccPublicKeyPem = eccPublicKeyPem!;
         }
         
         if (TryReadPrivateRsaKeyCipher(out string rsaPrivateKeyPemCipher))
@@ -43,20 +43,24 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
             RsaPrivateKeyPem = rsaPrivateKeyPem;
         }
 
-        if (BamProfile.TryReadVaultDotSysFileString(publicRsaKeyFile, out string rsapublicKeyPem))
+        if (BamProfile.TryReadVaultDotSysFileString(publicRsaKeyFile, out string? rsapublicKeyPem))
         {
-            RsaPublicKeyPem = rsapublicKeyPem;
+            RsaPublicKeyPem = rsapublicKeyPem!;
         }
     }
 
     protected virtual bool TryReadPrivateEccKeyCipher(out string eccPrivateKeyPemCipher)
     {
-        return BamProfile.TryReadVaultDotSysFileString(privateEccKeyFile, out eccPrivateKeyPemCipher);
+        bool result = BamProfile.TryReadVaultDotSysFileString(privateEccKeyFile, out string? value);
+        eccPrivateKeyPemCipher = value!;
+        return result;
     }
 
     protected virtual bool TryReadPrivateRsaKeyCipher(out string rsaPrivateKeyPemCipher)
     {
-        return BamProfile.TryReadVaultDotSysFileString(privateRsaKeyFile, out rsaPrivateKeyPemCipher);
+        bool result = BamProfile.TryReadVaultDotSysFileString(privateRsaKeyFile, out string? value);
+        rsaPrivateKeyPemCipher = value!;
+        return result;
     }
     
     protected IProtectionProvider ProtectionProvider { get; set; }
@@ -76,24 +80,24 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
     /// <summary>
     /// Gets or sets the ECC private key in PEM format as raw bytes.
     /// </summary>
-    public byte[] EccPrivateKeyPem { get; set; }
+    public byte[] EccPrivateKeyPem { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the ECC public key in PEM format as a string.
     /// </summary>
-    public string EccPublicKeyPem { get; set; }
+    public string EccPublicKeyPem { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the RSA private key in PEM format as raw bytes.
     /// </summary>
-    public byte[] RsaPrivateKeyPem { get; set; }
+    public byte[] RsaPrivateKeyPem { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the RSA public key in PEM format as a string.
     /// </summary>
-    public string RsaPublicKeyPem { get; set; }
+    public string RsaPublicKeyPem { get; set; } = null!;
 
-    private EccKeyPair _eccKeyPair;
+    private EccKeyPair _eccKeyPair = null!;
     
     /// <summary>
     /// Gets the ECC key pair, loading it from the stored private key PEM if available, or generating a new one
@@ -152,7 +156,7 @@ public class SystemKeySet : IAesKeySource, IRsaKeySource
         return GetRsaKey().GetRsaPublicKey();
     }
 
-    RsaKeyPair _rsaKeyPair;
+    RsaKeyPair _rsaKeyPair = null!;
     /// <summary>
     /// Gets the RSA public-private key pair, loading it from the stored private key PEM if available,
     /// or generating a new one and persisting it to the vault.sys directory. The result is cached for subsequent calls.

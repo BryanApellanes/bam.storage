@@ -53,12 +53,12 @@ public class OpaqueFsRawStorage : FsRawStorage
     /// </summary>
     /// <param name="hashHexString">The original hex-encoded hash string identifying the data.</param>
     /// <returns>The decrypted raw data.</returns>
-    public IRawData LoadHashHexString(string hashHexString)
+    public new IRawData LoadHashHexString(string hashHexString)
     {
         string hmacPath = OpaquenessProvider.TransformHashHexString(hashHexString);//TransformHashHexString(hashHexString);
         IStorageSlot hmacSlot = FsStorageSlot.GetSegmentedPathStorageSlot(RootHolder, hmacPath);
-        IRawData encrypted = hmacSlot.GetData();
-        return OpaquenessProvider.Decrypt(encrypted);
+        IRawData encrypted = hmacSlot.GetData()!;
+        return OpaquenessProvider.Decrypt(encrypted)!;
     }
 
     /// <summary>

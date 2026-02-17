@@ -67,6 +67,6 @@ namespace Bam.Storage.Encryption
         protected Action<Exception> ExceptionHandler
         {
             get; set;
-        }
+        } = null!;
     }
 }
