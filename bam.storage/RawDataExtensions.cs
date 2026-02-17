@@ -13,6 +13,6 @@ public static class RawDataExtensions
     /// <returns>The deserialized object.</returns>
     public static T ToObject<T>(this IRawData rawData)
     {
-        return rawData.ToString().FromJson<T>();
+        return rawData.ToString()!.FromJson<T>();
     }
 }

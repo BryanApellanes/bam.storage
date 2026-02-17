@@ -37,7 +37,7 @@ namespace Bam
         /// </summary>
         /// <param name="obj">The object to compare with.</param>
         /// <returns><c>true</c> if the lock info matches; otherwise, <c>false</c>.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is MultiProcessDataLockInfo lockInfo)
             {

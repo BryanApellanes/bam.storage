@@ -20,7 +20,7 @@ namespace Bam.Data.Dynamic.Objects
         /// </summary>
         /// <param name="data">The data object to manage across processes.</param>
         /// <param name="encoding">The text encoding to use, or null for default.</param>
-        protected MultiProcessData(object data, Encoding encoding = null) : base()
+        protected MultiProcessData(object data, Encoding encoding = null!) : base()
         {         
             Args.ThrowIfNull(data, nameof(data));
             LockTimeout = 150;
@@ -108,7 +108,7 @@ namespace Bam.Data.Dynamic.Objects
             set;
         }
 
-        string _rootDirectory;
+        string _rootDirectory = null!;
         readonly object _rootDirectoryLock = new object();
         /// <summary>
         /// Gets or sets the root directory for the data, lock, read, and write files.
@@ -129,7 +129,7 @@ namespace Bam.Data.Dynamic.Objects
         /// <summary>
         /// Occurs when an exception is thrown while attempting to acquire a file lock.
         /// </summary>
-        public event EventHandler AcquireLockException;
+        public event EventHandler AcquireLockException = null!;
 
         /// <summary>
         /// Raises the <see cref="AcquireLockException"/> event and records the exception message.
@@ -147,7 +147,7 @@ namespace Bam.Data.Dynamic.Objects
         /// <summary>
         /// Occurs when this instance is waiting for another process to release the file lock.
         /// </summary>
-        public event EventHandler WaitingForLock;
+        public event EventHandler WaitingForLock = null!;
 
         /// <summary>
         /// Raises the <see cref="WaitingForLock"/> event.
@@ -160,18 +160,18 @@ namespace Bam.Data.Dynamic.Objects
         /// <summary>
         /// Gets or sets the message from the most recent exception encountered during lock acquisition.
         /// </summary>
-        public string LastExceptionMessage { get; set; }
+        public string LastExceptionMessage { get; set; } = null!;
 
         /// <summary>
         /// Gets the process id of the process who has 
         /// the lock
         /// </summary>
-        public string CurrentLockerId { get; set; }
+        public string CurrentLockerId { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the machine name of the process that currently holds the lock.
         /// </summary>
-        public string CurrentLockerMachineName { get; set; }
+        public string CurrentLockerMachineName { get; set; } = null!;
 
         protected string LockFile => Path.Combine(RootDirectory, "{0}.lock".Format(HashHexString));
 
@@ -210,8 +210,8 @@ namespace Bam.Data.Dynamic.Objects
                                 logged = true;
                                 MultiProcessDataLockInfo currentLockInfo =
                                     ObjectEncoder.Decode<MultiProcessDataLockInfo>(File.ReadAllBytes(LockFile));
-                                CurrentLockerId = currentLockInfo?.ProcessId.ToString();
-                                CurrentLockerMachineName = currentLockInfo?.MachineName;
+                                CurrentLockerId = currentLockInfo?.ProcessId.ToString()!;
+                                CurrentLockerMachineName = currentLockInfo?.MachineName!;
                                 OnWaitingForLock();
                             }
 

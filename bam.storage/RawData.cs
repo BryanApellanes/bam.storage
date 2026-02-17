@@ -66,7 +66,7 @@ public class RawData : IRawData
     /// </summary>
     public ulong HashId => BitConverter.ToUInt64(Hash, 0);
 
-    private string _hashString;
+    private string _hashString = null!;
     /// <summary>
     /// Gets the hash hex string equivalent.
     /// </summary>
@@ -84,7 +84,7 @@ public class RawData : IRawData
         set => _hashString = value;
     }
 
-    private byte[] _hash;
+    private byte[] _hash = null!;
     /// <summary>
     /// Gets the binary hash.
     /// </summary>
@@ -102,7 +102,7 @@ public class RawData : IRawData
                 _hash = HashHexString.HexToBytes();
             }
 
-            return _hash;
+            return _hash!;
         }
         set => _hash = value;
     }

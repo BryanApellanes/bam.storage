@@ -11,7 +11,7 @@ namespace Bam.Storage.Data
     public class DataTypeTranslator : IDataTypeTranslator
     {
         private static readonly object _dataTypeTranslatorLock = new object();
-        private static IDataTypeTranslator _dafault;
+        private static IDataTypeTranslator _dafault = null!;
         /// <summary>
         /// Gets or sets the default singleton instance of <see cref="IDataTypeTranslator"/>.
         /// </summary>

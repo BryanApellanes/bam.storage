@@ -37,11 +37,11 @@ public class FsStorageSlot : StorageSlot
     /// <param name="rawData">The raw data to write to disk.</param>
     public override void SetData(IRawData rawData)
     {
-        string filePath = FullName;
+        string filePath = FullName!;
         FileInfo fileInfo = new FileInfo(filePath);
         if (!fileInfo.Exists)
         {
-            fileInfo.Directory.Create();
+            fileInfo.Directory!.Create();
         }
         File.WriteAllBytes(filePath, rawData.Value);
         this.RawData = rawData;

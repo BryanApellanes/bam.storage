@@ -14,10 +14,10 @@ public class SlotInfo : IStorageSlot
     public SlotInfo(IStorageSlot slot)
     {
         this.Original = slot;
-        this.FullName = Path.Combine(slot.StorageHolder.FullName, slot.FullName);
+        this.FullName = Path.Combine(slot.StorageHolder!.FullName!, slot.FullName!);
         this.Name = Path.GetFileName(this.FullName);
         this.RelativePath = this.Name;
-        this.StorageHolder = new HolderInfo(slot.StorageHolder.FullName);
+        this.StorageHolder = new HolderInfo(slot.StorageHolder.FullName!);
     }
 
     private IStorageSlot Original { get; }

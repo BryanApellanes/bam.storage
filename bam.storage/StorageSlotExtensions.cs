@@ -17,9 +17,9 @@ public static class StorageSlotExtensions
         SlotInfo slotInfo = new SlotInfo(slot);
         return new NormalizedSlotInfo()
         {
-            Holder = slot.StorageHolder,
+            Holder = slot.StorageHolder!,
             Slot = slot,
-            NormalizedHolder = slotInfo.StorageHolder,
+            NormalizedHolder = slotInfo.StorageHolder!,
             NormalizedSlot = slotInfo
         };
     }
@@ -43,7 +43,7 @@ public static class StorageSlotExtensions
     /// <returns>The fully resolved path of the storage slot.</returns>
     public static string GetFullPath(this IStorageSlot slot)
     {
-        string slotPath = slot.FullName;
+        string slotPath = slot.FullName!;
         if (string.IsNullOrEmpty(slotPath))
         {
             slotPath = slot.Name;
@@ -56,6 +56,6 @@ public static class StorageSlotExtensions
         
         IStorageHolder holder = slot.StorageHolder ?? DirectoryStorageHolder.ProfileDirectoryHolder;
 
-        return Path.Combine(holder.FullName, slotPath);
+        return Path.Combine(holder.FullName!, slotPath);
     }
 }

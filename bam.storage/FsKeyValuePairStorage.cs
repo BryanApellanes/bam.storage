@@ -85,11 +85,11 @@ public class FsKeyValuePairStorage : IKeyValuePairStorage
     public virtual IKeyValuePair Get(string key)
     {
         IStorageSlot slot = FsSlottedStorage.GetHashHexStringStorageSlot(key);
-        IRawData rawData = slot.GetData();
+        IRawData rawData = slot.GetData()!;
         return new KeyValuePair()
         {
             Key = key,
-            Value = rawData.Value,
+            Value = rawData!.Value,
         };
     }
 }

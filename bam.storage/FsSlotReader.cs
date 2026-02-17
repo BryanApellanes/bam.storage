@@ -30,13 +30,13 @@ public class FsSlotReader : ISlotReader
     /// <returns><c>true</c> if the slot was read and deserialized successfully; otherwise, <c>false</c>.</returns>
     public bool TryReadSlot<T>(IStorageSlot slot, out T value)
     {
-        value = default;
+        value = default!;
         try
         {
             value = ReadSlot<T>(slot);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }
@@ -60,35 +60,25 @@ public class FsSlotReader : ISlotReader
         switch (dataType)
         {
             case DataTypes.Default:
-                return ReadString(slot);
-                break;
+                return ReadString(slot)!;
             case DataTypes.Boolean:
-                return ReadBoolean(slot);
-                break;
+                return ReadBoolean(slot)!;
             case DataTypes.Int:
-                return ReadInt(slot);
-                break;
+                return ReadInt(slot)!;
             case DataTypes.UInt:
-                return ReadUInt(slot);
-                break;
+                return ReadUInt(slot)!;
             case DataTypes.ULong:
-                return ReadULong(slot);
-                break;
+                return ReadULong(slot)!;
             case DataTypes.Long:
-                return ReadLong(slot);
-                break;
+                return ReadLong(slot)!;
             case DataTypes.Decimal:
-                return ReadDecimal(slot);
-                break;
+                return ReadDecimal(slot)!;
             case DataTypes.String:
-                return ReadString(slot);
-                break;
+                return ReadString(slot)!;
             case DataTypes.ByteArray:
-                return slot.GetData().Value;
-                break;
+                return slot.GetData()!.Value;
             case DataTypes.DateTime:
-                return ReadDateTime(slot);
-                break;
+                return ReadDateTime(slot)!;
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -96,37 +86,37 @@ public class FsSlotReader : ISlotReader
 
     private string? ReadString(IStorageSlot slot)
     {
-        return BitConverter.ToString(slot.GetData().Value);
+        return BitConverter.ToString(slot.GetData()!.Value);
     }
-    
+
     private bool? ReadBoolean(IStorageSlot slot)
     {
-        return BitConverter.ToBoolean(slot.GetData().Value);
+        return BitConverter.ToBoolean(slot.GetData()!.Value);
     }
-    
+
     private int? ReadInt(IStorageSlot slot)
     {
-        return BitConverter.ToInt32(slot.GetData().Value);
+        return BitConverter.ToInt32(slot.GetData()!.Value);
     }
-    
+
     private uint? ReadUInt(IStorageSlot slot)
     {
-        return BitConverter.ToUInt32(slot.GetData().Value);
+        return BitConverter.ToUInt32(slot.GetData()!.Value);
     }
 
     private ulong? ReadULong(IStorageSlot slot)
     {
-        return BitConverter.ToUInt64(slot.GetData().Value);
+        return BitConverter.ToUInt64(slot.GetData()!.Value);
     }
-    
+
     private long? ReadLong(IStorageSlot slot)
     {
-        return BitConverter.ToInt64(slot.GetData().Value);
+        return BitConverter.ToInt64(slot.GetData()!.Value);
     }
 
     private decimal? ReadDecimal(IStorageSlot slot)
     {
-        byte[] bytes = slot.GetData().Value;
+        byte[] bytes = slot.GetData()!.Value;
         int[] bits = new int[4];
         bits[0] = ((bytes[0] | (bytes[1] << 8)) | (bytes[2] << 0x10)) | (bytes[3] << 0x18); //lo
         bits[1] = ((bytes[4] | (bytes[5] << 8)) | (bytes[6] << 0x10)) | (bytes[7] << 0x18); //mid
@@ -138,6 +128,6 @@ public class FsSlotReader : ISlotReader
 
     private DateTime? ReadDateTime(IStorageSlot slot)
     {
-        return DateTime.Parse(ReadString(slot));
+        return DateTime.Parse(ReadString(slot)!);
     }
 }

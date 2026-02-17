@@ -40,10 +40,10 @@ public class KeyValuePair : IKeyValuePair
     /// <summary>
     /// Gets or sets the string key that identifies this pair.
     /// </summary>
-    public string Key { get; set; }
+    public string Key { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the byte array value associated with the key.
     /// </summary>
-    public byte[] Value { get; set; }
+    public byte[] Value { get; set; } = null!;
 }

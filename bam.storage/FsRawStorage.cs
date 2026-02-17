@@ -59,7 +59,7 @@ public class FsRawStorage : IRawStorage
     /// <summary>
     /// Gets or sets the current default storage slot.
     /// </summary>
-    public IStorageSlot CurrentSlot { get; set; }
+    public IStorageSlot CurrentSlot { get; set; } = null!;
 
     /// <summary>
     /// Saves raw data to the current slot if set, or to a hash-derived segmented path slot.
@@ -78,7 +78,7 @@ public class FsRawStorage : IRawStorage
     /// <returns>The raw data identified by the hash.</returns>
     public virtual IRawData LoadHashHexString(string hashHexString)
     {
-        return FsStorageSlot.GetSegmentedPathStorageSlot(RootHolder, hashHexString).GetData();
+        return FsStorageSlot.GetSegmentedPathStorageSlot(RootHolder, hashHexString).GetData()!;
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public class FsRawStorage : IRawStorage
     {
         Args.ThrowIfNull(slot, nameof(slot));
         Args.ThrowIfNull(RootHolder, nameof(RootHolder));
-        Args.ThrowIf(!slot.StorageHolder.FullName.StartsWith(RootHolder.FullName, StringComparison.InvariantCultureIgnoreCase), $"{nameof(FsRawStorage)}:: slot is in {slot.StorageHolder.FullName} not in storage root {RootHolder.FullName}");
+        Args.ThrowIf(!slot.StorageHolder!.FullName!.StartsWith(RootHolder.FullName!, StringComparison.InvariantCultureIgnoreCase), $"{nameof(FsRawStorage)}:: slot is in {slot.StorageHolder.FullName} not in storage root {RootHolder.FullName}");
 
         slot.SetData(rawData);
         return slot;

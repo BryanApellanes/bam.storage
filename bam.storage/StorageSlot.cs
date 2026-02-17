@@ -37,7 +37,7 @@ public abstract class StorageSlot : IStorageSlot
     /// <summary>
     /// Gets the full path of this slot, combining the storage holder's path with the slot name.
     /// </summary>
-    public virtual string? FullName => Path.Combine(StorageHolder.FullName, Name);
+    public virtual string? FullName => Path.Combine(StorageHolder!.FullName!, Name);
 
     /// <summary>
     /// Gets the storage holder that contains this slot.
@@ -52,7 +52,7 @@ public abstract class StorageSlot : IStorageSlot
     /// <summary>
     /// Gets or sets the cached raw data for this slot.
     /// </summary>
-    protected IRawData RawData { get; set; }
+    protected IRawData RawData { get; set; } = null!;
 
     /// <summary>
     /// Reads and returns the raw data from the file at this slot's full path. Caches the result for subsequent calls.
@@ -66,7 +66,7 @@ public abstract class StorageSlot : IStorageSlot
             return RawData;
         }
 
-        string filePath = FullName;
+        string filePath = FullName!;
         if (File.Exists(filePath))
         {
             RawData = new RawData(File.ReadAllBytes(filePath));

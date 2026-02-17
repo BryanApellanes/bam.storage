@@ -30,7 +30,7 @@ public class FsRawDataStorageLoadResult : IRawDataStorageLoadResult, IResult
     /// <summary>
     /// Gets the raw data that was loaded, or null if the operation failed.
     /// </summary>
-    public IRawData RawData { get; }
+    public IRawData RawData { get; } = null!;
 
     /// <summary>
     /// Gets a value indicating whether the load operation completed successfully.
@@ -40,10 +40,10 @@ public class FsRawDataStorageLoadResult : IRawDataStorageLoadResult, IResult
     /// <summary>
     /// Gets or sets a message describing the result, typically containing error details on failure.
     /// </summary>
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the file system path the data was loaded from.
     /// </summary>
-    public string Path { get; set; }
+    public string Path { get; set; } = null!;
 }

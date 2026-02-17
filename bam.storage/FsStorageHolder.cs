@@ -56,7 +56,7 @@ public class FsStorageHolder : IStorageHolder
     public virtual string? FullName
     {
         get => Directory?.FullName;
-        private init => Directory = new DirectoryInfo(value);
+        private init => Directory = new DirectoryInfo(value!);
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public class FsStorageHolder : IStorageHolder
     /// <returns>The combined path string.</returns>
     public string Combine(params string[] pathParts)
     {
-        List<string?> parts = new List<string?> { FullName };
+        List<string> parts = new List<string> { FullName! };
         parts.AddRange(pathParts);
         return Path.Combine(parts.ToArray());
     }

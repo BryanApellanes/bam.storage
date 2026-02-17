@@ -8,5 +8,5 @@ public interface IStorageIdentifier
     /// <summary>
     /// Gets the fully qualified name of this storage location (for example, a full file system path).
     /// </summary>
-    string FullName { get; }
+    string? FullName { get; }
 }

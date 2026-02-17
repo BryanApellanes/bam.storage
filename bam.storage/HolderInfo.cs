@@ -8,7 +8,7 @@ public class HolderInfo: IStorageHolder
     /// <summary>
     /// Initializes a new instance of <see cref="HolderInfo"/> using the default profile data path with a "dat" file name.
     /// </summary>
-    public HolderInfo(): this(Path.Combine(DirectoryStorageHolder.ProfileDirectoryHolder, "dat"))
+    public HolderInfo(): this(Path.Combine(DirectoryStorageHolder.ProfileDirectoryHolder.FullName!, "dat"))
     {
     }
 
@@ -39,7 +39,7 @@ public class HolderInfo: IStorageHolder
     /// <returns>A file-system-based storage slot.</returns>
     public IStorageSlot GetSlot(string relativePath)
     {
-        string fullPath = Path.Combine(FullName, relativePath);
+        string fullPath = Path.Combine(FullName!, relativePath);
         return new FsStorageSlot(this, relativePath);
     }
 }

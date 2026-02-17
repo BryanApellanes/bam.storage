@@ -30,7 +30,7 @@ public class FsRawDataDataStorageSaveResult: IFsRawDataDataStorageSaveResult, IR
     /// <summary>
     /// Gets the raw data that was saved, or null if the operation failed.
     /// </summary>
-    public IRawData RawData { get; }
+    public IRawData RawData { get; } = null!;
 
     /// <summary>
     /// Gets a value indicating whether the save operation completed successfully.
@@ -40,10 +40,10 @@ public class FsRawDataDataStorageSaveResult: IFsRawDataDataStorageSaveResult, IR
     /// <summary>
     /// Gets or sets a message describing the result, typically containing error details on failure.
     /// </summary>
-    public string Message { get; set; }
+    public string Message { get; set; } = null!;
 
     /// <summary>
     /// Gets the file system path where the data was saved, or null if the operation failed.
     /// </summary>
-    public string Path { get; }
+    public string Path { get; } = null!;
 }

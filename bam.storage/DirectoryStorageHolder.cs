@@ -29,7 +29,7 @@ public class DirectoryStorageHolder : FsStorageHolder, IStorageHolder
     {
     }
 
-    private static DirectoryStorageHolder _workingDirectoryHolder;
+    private static DirectoryStorageHolder _workingDirectoryHolder = null!;
     private static readonly object _workingDirectoryHolderLock = new object();
 
     /// <summary>
@@ -44,7 +44,7 @@ public class DirectoryStorageHolder : FsStorageHolder, IStorageHolder
         }
     }
 
-    private static DirectoryStorageHolder _profileDirectoryHolder;
+    private static DirectoryStorageHolder _profileDirectoryHolder = null!;
     private static readonly object _profileDirectoryContainerLock = new object();
 
     /// <summary>
@@ -64,7 +64,7 @@ public class DirectoryStorageHolder : FsStorageHolder, IStorageHolder
     /// </summary>
     /// <param name="relativePath">The relative path identifying the slot.</param>
     /// <returns>A file-system-based storage slot.</returns>
-    public IStorageSlot GetSlot(string relativePath)
+    public new IStorageSlot GetSlot(string relativePath)
     {
         return new FsStorageSlot(this, relativePath);
     }

@@ -47,7 +47,7 @@ public class FsSlottedStorage : SlottedStorage
     /// <summary>
     /// Gets or sets the current default storage slot.
     /// </summary>
-    public override IStorageSlot CurrentSlot { get; set; }
+    public override IStorageSlot CurrentSlot { get; set; } = null!;
 
     /// <summary>
     /// Gets the current slot if set, otherwise returns a default slot named "dat".
@@ -131,7 +131,7 @@ public class FsSlottedStorage : SlottedStorage
     public override IStorageSlot Save(IStorageSlot slot, IRawData rawData)
     {
         Args.ThrowIfNull(RootHolder, nameof(RootHolder));
-        Args.ThrowIf(!slot.StorageHolder.FullName.StartsWith(RootHolder.FullName, StringComparison.InvariantCultureIgnoreCase), $"{nameof(FsSlottedStorage)}:: slot is in {slot.StorageHolder.FullName} not in storage root {RootHolder.FullName}");
+        Args.ThrowIf(!slot.StorageHolder!.FullName!.StartsWith(RootHolder.FullName!, StringComparison.InvariantCultureIgnoreCase), $"{nameof(FsSlottedStorage)}:: slot is in {slot.StorageHolder.FullName} not in storage root {RootHolder.FullName}");
 
         slot.SetData(rawData);
         return slot;
@@ -164,7 +164,7 @@ public class FsSlottedStorage : SlottedStorage
     /// <returns>The raw data loaded from the slot.</returns>
     public override IRawData LoadSlot(IStorageSlot slot)
     {
-        return slot.GetData();
+        return slot.GetData()!;
     }
 
     /// <summary>
