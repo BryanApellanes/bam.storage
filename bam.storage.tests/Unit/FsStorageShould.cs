@@ -21,7 +21,7 @@ public class FsStorageShould : UnitTestMenuContainer
         string root = Path.Combine(Environment.CurrentDirectory, nameof(SaveFile));
         ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
         List<string> parts = new List<string> { root };
-        parts.AddRange(typeof(TestStorageData).Namespace.Split('.'));
+        parts.AddRange(typeof(TestStorageData).Namespace!.Split('.'));
         parts.Add(nameof(TestStorageData));
         parts.Add("key");
         parts.AddRange(testKey.ToString().Split(2));

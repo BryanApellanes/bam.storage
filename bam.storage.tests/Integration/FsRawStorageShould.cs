@@ -19,7 +19,7 @@ public class FsRawStorageShould : UnitTestMenuContainer
                 IRawData data = new RawData(testData);
                 IStorageSlot slot = storage.Save(data);
 
-                byte[] value = slot.GetData().Value;
+                byte[] value = slot.GetData()!.Value;
                 string retrievedFromSlot = Encoding.UTF8.GetString(value);
 
                 IRawData rawFromStorage = storage.LoadHashHexString(data.HashHexString);
