@@ -24,8 +24,7 @@ The project also includes `SystemKeySet`, a singleton that manages the system's 
 | `SystemKeySet` | Singleton managing the system's ECC and RSA key pairs. Implements `IAesKeySource` and `IRsaKeySource`. Stores encrypted private keys and plaintext public keys in the vault.sys directory. |
 | `SystemKeyProtectionProvider` | Default `IProtectionProvider` that returns `AesKey.SystemKey` for protecting private keys at rest. |
 | `IProtectionProvider` | Interface for providing an `AesKey` used to protect private key material. |
-| `RsaPrivateKeyOpaqueStorage` | Intended to store/load RSA private keys via opaque key-value storage. **Not yet implemented.** |
-| `StoredRsaPrivateKeyUsageContext` | Empty stub class, intended for future use in managing RSA private key lifecycle. |
+| `RsaPrivateKeyOpaqueStorage` | Stores and loads RSA private keys via opaque key-value storage. Supports named keys (`SaveNamedKey`/`GetNamedKey`) and scoped key usage via `UseNamedKey`, which decrypts the key in a `RsaPrivateKeyUsageContext` and disposes it after use. |
 
 ## Dependencies
 
@@ -110,8 +109,32 @@ string decrypted = aesKey.Decrypt(cipher);
 RsaPublicKey publicKey = SystemKeySet.Current.GetRsaPublicKey();
 ```
 
+### Storing and using RSA private keys
+
+```csharp
+using Bam.Encryption;
+using Bam.Storage;
+using Bam.Storage.Encryption;
+
+// Create opaque storage for RSA private keys
+var opaqueKvStorage = new OpaqueFsKeyValuePairStorage(
+    new FsSlottedStorage("/path/to/key-storage"),
+    new AesKey(),
+    new HmacKeyProvider()
+);
+var keyStorage = new RsaPrivateKeyOpaqueStorage(opaqueKvStorage);
+
+// Generate and save a named key
+RsaPublicPrivateKeyPair keyPair = new RsaPublicPrivateKeyPair(RsaKeyLength._2048);
+keyStorage.SaveNamedKey("myServiceKey", keyPair.Pem);
+
+// Later, use the key for signing or decryption without exposing the raw bytes
+keyStorage.UseNamedKey("myServiceKey", (privateKey) =>
+{
+    string decrypted = new RsaPrivateKey(privateKey.Pem).Decrypt(cipherText);
+});
+```
+
 ## Known Gaps / Not Yet Implemented
 
-- **`RsaPrivateKeyOpaqueStorage`**: Both `ReadPrivateKey` and `WritePrivateKeyBytes(byte[])` throw `NotImplementedException`. The `WritePrivateKeyBytes(RsaPublicPrivateKeyPair)` overload calls the unimplemented byte-array overload internally.
-- **`StoredRsaPrivateKeyUsageContext`**: Empty stub class with no members or logic.
-- The .csproj excludes several files from compilation (`CredentialManager.cs`, `ManagedVault.cs`, `ManagedVaults.cs`, `VaultDatabase.cs`, `VaultDatabaseInitializer.cs`, `VaultInfo.cs`, `VaultKeyInfo.cs`, `VaultKeyNotSetException.cs`, `DecryptedVaultItem.cs`, `VaultCredentialProvider.cs`), suggesting a vault management subsystem that has been removed or is under redesign.
+- No known gaps at this time.

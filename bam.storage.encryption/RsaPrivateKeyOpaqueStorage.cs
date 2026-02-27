@@ -13,7 +13,10 @@ namespace Bam.Storage.Encryption
     /// </summary>
     public class RsaPrivateKeyOpaqueStorage : IRsaPrivateKeyByteWriter, IRsaPrivateKeyByteReader
     {
+        const string DefaultKeyName = "DefaultRsaKey";
         OpaqueFsKeyValuePairStorage _opaqueFsKeyValueStorage;
+
+        public RsaPrivateKeyOpaqueStorage() { }
 
         /// <summary>
         /// Initializes a new instance of <see cref="RsaPrivateKeyOpaqueStorage"/> using the specified opaque key-value pair storage.
@@ -31,7 +34,7 @@ namespace Bam.Storage.Encryption
         /// <returns>The RSA public-private key pair.</returns>
         public RsaPublicPrivateKeyPair ReadPrivateKey(byte[] privateKeyBytes)
         {
-            throw new NotImplementedException();
+            return new RsaPublicPrivateKeyPair(privateKeyBytes);
         }
 
         /// <summary>
@@ -61,7 +64,38 @@ namespace Bam.Storage.Encryption
         /// <returns><c>true</c> if the write was successful; <c>false</c> otherwise.</returns>
         public bool WritePrivateKeyBytes(byte[] privateKeyBytes)
         {
-            throw new NotImplementedException();
+            return SaveNamedKey(DefaultKeyName, privateKeyBytes).Success;
+        }
+
+        public IKeyValuePairSaveResult SaveNamedKey(string keyName, byte[] privateKeyBytes)
+        {
+            return this._opaqueFsKeyValueStorage.Save(keyName, privateKeyBytes);
+        }
+
+        public byte[]? GetNamedKey(string name)
+        {
+            try
+            {
+                IKeyValuePair kvp = this._opaqueFsKeyValueStorage.Get(name);
+                return kvp?.Value;
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
+
+        public void UseNamedKey(string name, Action<IPrivateKey> action)
+        {
+            byte[]? keyBytes =  GetNamedKey(name);
+            if (keyBytes == null)
+            {
+                return;
+            }
+            using(RsaPrivateKeyUsageContext ctx = new RsaPrivateKeyUsageContext(keyBytes))
+            {
+                ctx.UseKey(action);
+            }
         }
 
         protected Action<Exception> ExceptionHandler
