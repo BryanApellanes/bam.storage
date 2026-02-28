@@ -24,7 +24,8 @@ The project also includes `SystemKeySet`, a singleton that manages the system's 
 | `SystemKeySet` | Singleton managing the system's ECC and RSA key pairs. Implements `IAesKeySource` and `IRsaKeySource`. Stores encrypted private keys and plaintext public keys in the vault.sys directory. |
 | `SystemKeyProtectionProvider` | Default `IProtectionProvider` that returns `AesKey.SystemKey` for protecting private keys at rest. |
 | `IProtectionProvider` | Interface for providing an `AesKey` used to protect private key material. |
-| `RsaPrivateKeyOpaqueStorage` | Stores and loads RSA private keys via opaque key-value storage. Supports named keys (`SaveNamedKey`/`GetNamedKey`) and scoped key usage via `UseNamedKey`, which decrypts the key in a `RsaPrivateKeyUsageContext` and disposes it after use. |
+| `RsaPrivateKeyOpaqueStorage` | Implements `INamedKeyStorage` and `IRsaPrivateKeyByteWriter` for opaque RSA private key persistence via `OpaqueFsKeyValuePairStorage`. Provides `SaveNamedKey`/`GetNamedKey` for named key storage and `WritePrivateKeyBytes` for writing key pairs under a default name. |
+| `NamedKeyUsageService` | Orchestrates loading a named key from an `INamedKeyStorage` and executing an action within a `ProtectedKeyUsageContext` created by an `IProtectedKeyUsageContextFactory`. Composes storage and usage concerns without coupling them. |
 
 ## Dependencies
 
@@ -128,8 +129,11 @@ var keyStorage = new RsaPrivateKeyOpaqueStorage(opaqueKvStorage);
 RsaPublicPrivateKeyPair keyPair = new RsaPublicPrivateKeyPair(RsaKeyLength._2048);
 keyStorage.SaveNamedKey("myServiceKey", keyPair.Pem);
 
-// Later, use the key for signing or decryption without exposing the raw bytes
-keyStorage.UseNamedKey("myServiceKey", (privateKey) =>
+// Create a usage service to decouple key loading from key usage
+var usageService = new NamedKeyUsageService(keyStorage, new RsaProtectedKeyUsageContextFactory());
+
+// Use the key for signing or decryption without exposing the raw bytes
+usageService.UseNamedKey("myServiceKey", (privateKey) =>
 {
     string decrypted = new RsaPrivateKey(privateKey.Pem).Decrypt(cipherText);
 });

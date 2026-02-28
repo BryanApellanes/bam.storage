@@ -29,10 +29,10 @@ public class RsaPrivateKeyOpaqueStorageShould : UnitTestMenuContainer
                 using RsaPublicPrivateKeyPair keyPair = new RsaPublicPrivateKeyPair(RsaKeyLength._2048);
                 byte[] originalBytes = (byte[])keyPair.Pem.Clone();
 
-                IKeyValuePairSaveResult saveResult = storage.SaveNamedKey("myKey", originalBytes);
+                bool saveResult = storage.SaveNamedKey("myKey", originalBytes);
                 byte[]? retrieved = storage.GetNamedKey("myKey");
 
-                return new object[] { saveResult.Success, originalBytes, retrieved! };
+                return new object[] { saveResult, originalBytes, retrieved! };
             })
         .TheTest
         .ShouldPass(because =>
@@ -112,14 +112,14 @@ public class RsaPrivateKeyOpaqueStorageShould : UnitTestMenuContainer
     [UnitTest]
     public void ReadPrivateKeyConstructsValidKeyPair()
     {
-        When.A<RsaPrivateKeyOpaqueStorage>("reads private key and constructs a valid key pair",
-            () => CreateStorage(nameof(ReadPrivateKeyConstructsValidKeyPair)),
-            (storage) =>
+        When.A<RsaPrivateKeyByteReader>("reads private key and constructs a valid key pair",
+            () => new RsaPrivateKeyByteReader(),
+            (reader) =>
             {
                 using RsaPublicPrivateKeyPair originalKeyPair = new RsaPublicPrivateKeyPair(RsaKeyLength._2048);
                 byte[] pemBytes = originalKeyPair.Pem;
 
-                using RsaPublicPrivateKeyPair reconstructed = storage.ReadPrivateKey(pemBytes);
+                using RsaPublicPrivateKeyPair reconstructed = reader.ReadPrivateKey(pemBytes);
 
                 string plaintext = "test message for encryption";
                 string encrypted = new RsaPublicKey(reconstructed.PublicKeyPem).Encrypt(plaintext);
@@ -145,10 +145,12 @@ public class RsaPrivateKeyOpaqueStorageShould : UnitTestMenuContainer
     [UnitTest]
     public void UseNamedKeyExecutesActionWithLoadedKey()
     {
-        When.A<RsaPrivateKeyOpaqueStorage>("uses named key to execute action",
+        When.A<RsaPrivateKeyOpaqueStorage>("uses named key to execute action via NamedKeyUsageService",
             () => CreateStorage(nameof(UseNamedKeyExecutesActionWithLoadedKey)),
             (storage) =>
             {
+                NamedKeyUsageService service = new NamedKeyUsageService(storage, new RsaProtectedKeyUsageContextFactory());
+
                 using RsaPublicPrivateKeyPair keyPair = new RsaPublicPrivateKeyPair(RsaKeyLength._2048);
                 storage.SaveNamedKey("actionKey", keyPair.Pem);
 
@@ -158,7 +160,7 @@ public class RsaPrivateKeyOpaqueStorageShould : UnitTestMenuContainer
                 bool actionCalled = false;
                 string? decrypted = null;
 
-                storage.UseNamedKey("actionKey", (privateKey) =>
+                service.UseNamedKey("actionKey", (privateKey) =>
                 {
                     actionCalled = true;
                     using RsaPublicPrivateKeyPair loadedPair = new RsaPublicPrivateKeyPair(privateKey.Pem);
@@ -203,12 +205,14 @@ public class RsaPrivateKeyOpaqueStorageShould : UnitTestMenuContainer
     [UnitTest]
     public void UseNamedKeyDoesNothingForNonExistentKey()
     {
-        When.A<RsaPrivateKeyOpaqueStorage>("does nothing for non-existent key",
+        When.A<RsaPrivateKeyOpaqueStorage>("does nothing for non-existent key via NamedKeyUsageService",
             () => CreateStorage(nameof(UseNamedKeyDoesNothingForNonExistentKey)),
             (storage) =>
             {
+                NamedKeyUsageService service = new NamedKeyUsageService(storage, new RsaProtectedKeyUsageContextFactory());
+
                 bool actionCalled = false;
-                storage.UseNamedKey("nonExistentKey", (privateKey) =>
+                service.UseNamedKey("nonExistentKey", (privateKey) =>
                 {
                     actionCalled = true;
                 });

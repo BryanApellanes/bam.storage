@@ -1,4 +1,4 @@
-﻿using Bam.Encryption;
+using Bam.Encryption;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +9,13 @@ namespace Bam.Storage.Encryption
 {
     /// <summary>
     /// Provides opaque (encrypted) storage for RSA private keys using an <see cref="OpaqueFsKeyValuePairStorage"/>
-    /// backend. Currently partially implemented.
+    /// backend. Implements <see cref="INamedKeyStorage"/> for named key persistence and
+    /// <see cref="IRsaPrivateKeyByteWriter"/> for writing private key bytes.
     /// </summary>
-    public class RsaPrivateKeyOpaqueStorage : IRsaPrivateKeyByteWriter, IRsaPrivateKeyByteReader
+    public class RsaPrivateKeyOpaqueStorage : INamedKeyStorage, IRsaPrivateKeyByteWriter
     {
         const string DefaultKeyName = "DefaultRsaKey";
-        OpaqueFsKeyValuePairStorage _opaqueFsKeyValueStorage;
-
-        public RsaPrivateKeyOpaqueStorage() { }
+        private readonly OpaqueFsKeyValuePairStorage _opaqueFsKeyValueStorage;
 
         /// <summary>
         /// Initializes a new instance of <see cref="RsaPrivateKeyOpaqueStorage"/> using the specified opaque key-value pair storage.
@@ -27,22 +26,38 @@ namespace Bam.Storage.Encryption
             this._opaqueFsKeyValueStorage = opaqueFsKeyValuePairStorage;
         }
 
-        /// <summary>
-        /// Reads an RSA key pair from the specified private key bytes. Not yet implemented.
-        /// </summary>
-        /// <param name="privateKeyBytes">The private key bytes to read.</param>
-        /// <returns>The RSA public-private key pair.</returns>
-        public RsaPublicPrivateKeyPair ReadPrivateKey(byte[] privateKeyBytes)
+        /// <inheritdoc />
+        public bool SaveNamedKey(string keyName, byte[] keyBytes)
         {
-            return new RsaPublicPrivateKeyPair(privateKeyBytes);
+            return _opaqueFsKeyValueStorage.Save(keyName, keyBytes).Success;
+        }
+
+        /// <inheritdoc />
+        public byte[]? GetNamedKey(string name)
+        {
+            try
+            {
+                IKeyValuePair kvp = this._opaqueFsKeyValueStorage.Get(name);
+                return kvp?.Value;
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
-        /// Writes the private key bytes of the specified RSA key pair to opaque storage.
-        /// Returns false and invokes the exception handler if an error occurs.
+        /// Saves a named key and returns the full <see cref="IKeyValuePairSaveResult"/> for callers needing detailed result information.
         /// </summary>
-        /// <param name="keyPair">The RSA key pair whose private key bytes will be written.</param>
-        /// <returns><c>true</c> if the write was successful; <c>false</c> if an error occurred.</returns>
+        /// <param name="keyName">The name to associate with the key.</param>
+        /// <param name="keyBytes">The raw key bytes to store.</param>
+        /// <returns>The save result.</returns>
+        public IKeyValuePairSaveResult SaveNamedKeyResult(string keyName, byte[] keyBytes)
+        {
+            return _opaqueFsKeyValueStorage.Save(keyName, keyBytes);
+        }
+
+        /// <inheritdoc />
         public bool WritePrivateKeyBytes(RsaPublicPrivateKeyPair keyPair)
         {
             try
@@ -57,45 +72,10 @@ namespace Bam.Storage.Encryption
             }
         }
 
-        /// <summary>
-        /// Writes the specified private key bytes to opaque storage. Not yet implemented.
-        /// </summary>
-        /// <param name="privateKeyBytes">The private key bytes to write.</param>
-        /// <returns><c>true</c> if the write was successful; <c>false</c> otherwise.</returns>
+        /// <inheritdoc />
         public bool WritePrivateKeyBytes(byte[] privateKeyBytes)
         {
-            return SaveNamedKey(DefaultKeyName, privateKeyBytes).Success;
-        }
-
-        public IKeyValuePairSaveResult SaveNamedKey(string keyName, byte[] privateKeyBytes)
-        {
-            return this._opaqueFsKeyValueStorage.Save(keyName, privateKeyBytes);
-        }
-
-        public byte[]? GetNamedKey(string name)
-        {
-            try
-            {
-                IKeyValuePair kvp = this._opaqueFsKeyValueStorage.Get(name);
-                return kvp?.Value;
-            }
-            catch (ArgumentException)
-            {
-                return null;
-            }
-        }
-
-        public void UseNamedKey(string name, Action<IPrivateKey> action)
-        {
-            byte[]? keyBytes =  GetNamedKey(name);
-            if (keyBytes == null)
-            {
-                return;
-            }
-            using(RsaPrivateKeyUsageContext ctx = new RsaPrivateKeyUsageContext(keyBytes))
-            {
-                ctx.UseKey(action);
-            }
+            return SaveNamedKey(DefaultKeyName, privateKeyBytes);
         }
 
         protected Action<Exception> ExceptionHandler
