@@ -163,8 +163,7 @@ public class RsaPrivateKeyOpaqueStorageShould : UnitTestMenuContainer
                 service.UseNamedKey("actionKey", (privateKey) =>
                 {
                     actionCalled = true;
-                    using RsaPublicPrivateKeyPair loadedPair = new RsaPublicPrivateKeyPair(privateKey.Pem);
-                    decrypted = loadedPair.Decrypt(encrypted);
+                    decrypted = ((RsaPrivateKey)privateKey).Decrypt(encrypted);
                 });
 
                 return new object[] { actionCalled, plaintext, decrypted! };
