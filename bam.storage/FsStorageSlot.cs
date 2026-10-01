@@ -9,7 +9,7 @@ public class FsStorageSlot : StorageSlot
     /// <summary>
     /// Initializes a new instance of <see cref="FsStorageSlot"/> with the default relative path "dat".
     /// </summary>
-    public FsStorageSlot(): this("dat")
+    public FsStorageSlot(): this(SegmentedPath.DataFileName)
     {
     }
 
@@ -18,6 +18,7 @@ public class FsStorageSlot : StorageSlot
     /// and the working directory as the storage holder.
     /// </summary>
     /// <param name="relativePath">The relative path (name) of this slot.</param>
+    /// <exception cref="ArgumentException">The path is rooted, empty, contains an unsafe segment, or resolves outside the holder.</exception>
     public FsStorageSlot(string relativePath) : base(relativePath)
     {
     }
@@ -27,6 +28,7 @@ public class FsStorageSlot : StorageSlot
     /// </summary>
     /// <param name="storageHolder">The storage holder that contains this slot.</param>
     /// <param name="relativePath">The relative path (name) of this slot within the holder.</param>
+    /// <exception cref="ArgumentException">The path is rooted, empty, contains an unsafe segment, or resolves outside the holder.</exception>
     public FsStorageSlot(IStorageHolder storageHolder, string relativePath) : base(storageHolder, relativePath)
     {
     }
@@ -46,14 +48,4 @@ public class FsStorageSlot : StorageSlot
         File.WriteAllBytes(filePath, rawData.Value);
         this.RawData = rawData;
     }
-    
-    /*public static IStorageSlot GetSegmentedPathStorageSlot(IStorageHolder rootHolder, string hashHexString)
-    {
-        Args.ThrowIfNullOrEmpty(hashHexString, nameof(hashHexString));
-        
-        List<string> parts = new List<string>();
-        parts.AddRange(hashHexString.Split(2));
-        parts.Add("dat");
-        return new FsStorageSlot(rootHolder, Path.Combine(parts.ToArray()));
-    }*/
 }

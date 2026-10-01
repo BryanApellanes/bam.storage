@@ -1,4 +1,4 @@
-﻿namespace Bam.Storage;
+namespace Bam.Storage;
 
 /// <summary>
 /// Abstract base class for storage slots that provides file-system-based data reading and a static factory
@@ -9,7 +9,7 @@ public abstract class StorageSlot : IStorageSlot
     /// <summary>
     /// Initializes a new instance of <see cref="StorageSlot"/> with the default relative path "dat".
     /// </summary>
-    public StorageSlot(): this("dat")
+    public StorageSlot(): this(SegmentedPath.DataFileName)
     {
     }
 
@@ -18,19 +18,31 @@ public abstract class StorageSlot : IStorageSlot
     /// and the working directory as the storage holder.
     /// </summary>
     /// <param name="relativePath">The relative path (name) of this slot.</param>
-    public StorageSlot(string relativePath)
+    /// <exception cref="ArgumentException">The path is rooted, empty, contains an unsafe segment, or resolves outside the holder.</exception>
+    public StorageSlot(string relativePath) : this(DirectoryStorageHolder.WorkingDirectoryHolder, relativePath)
     {
-        this.StorageHolder = DirectoryStorageHolder.WorkingDirectoryHolder;
-        this.Name = relativePath;
     }
 
     /// <summary>
     /// Initializes a new instance of <see cref="StorageSlot"/> with the specified storage holder and relative path.
     /// </summary>
+    /// <remarks>
+    /// The path is checked twice: <see cref="StoragePathGuard.EnsureRelativePath"/> judges its text, then
+    /// <see cref="StoragePathGuard.EnsureContained"/> resolves it against the holder and refuses a location outside it.
+    /// The second check needs the holder's path, so it is skipped for a holder that has none yet.
+    /// </remarks>
     /// <param name="storageHolder">The storage holder that contains this slot.</param>
     /// <param name="relativePath">The relative path (name) of this slot within the holder.</param>
-    public StorageSlot(IStorageHolder storageHolder, string relativePath) : this(relativePath)
+    /// <exception cref="ArgumentException">The path is rooted, empty, contains an unsafe segment, or resolves outside the holder.</exception>
+    public StorageSlot(IStorageHolder storageHolder, string relativePath)
     {
+        this.Name = StoragePathGuard.EnsureRelativePath(relativePath, nameof(relativePath));
+        string? holderFullName = storageHolder?.FullName;
+        if (!string.IsNullOrEmpty(holderFullName))
+        {
+            StoragePathGuard.EnsureContained(holderFullName, relativePath, nameof(relativePath));
+        }
+
         this.StorageHolder = storageHolder;
     }
 
@@ -56,9 +68,9 @@ public abstract class StorageSlot : IStorageSlot
 
     /// <summary>
     /// Reads and returns the raw data from the file at this slot's full path. Caches the result for subsequent calls.
-    /// Throws <see cref="ArgumentException"/> if the file does not exist.
     /// </summary>
     /// <returns>The raw data stored at this slot's file path.</returns>
+    /// <exception cref="ArgumentException">No file exists at this slot's full path.</exception>
     public virtual IRawData? GetData()
     {
         if (RawData != null)
@@ -92,14 +104,10 @@ public abstract class StorageSlot : IStorageSlot
     /// </summary>
     /// <param name="rootHolder">The root storage holder for the segmented path.</param>
     /// <param name="hashHexString">The hex-encoded hash string to split into path segments.</param>
-    /// <returns>A file-system storage slot at the segmented path.</returns>
+    /// <returns>A file-system storage slot at the segmented path, inside <paramref name="rootHolder"/>.</returns>
+    /// <exception cref="ArgumentException">The identifier produces a segment that <see cref="StoragePathGuard.EnsureSafeSegment"/> refuses, or a path that resolves outside <paramref name="rootHolder"/>.</exception>
     public static IStorageSlot GetSegmentedPathStorageSlot(IStorageHolder rootHolder, string hashHexString)
     {
-        Args.ThrowIfNullOrEmpty(hashHexString, nameof(hashHexString));
-
-        List<string> parts = new List<string>();
-        parts.AddRange(hashHexString.Split(2));
-        parts.Add("dat");
-        return new FsStorageSlot(rootHolder, Path.Combine(parts.ToArray()));
+        return new FsStorageSlot(rootHolder, SegmentedPath.FromHashHexString(hashHexString));
     }
 }

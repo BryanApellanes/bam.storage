@@ -38,7 +38,7 @@ public class FsRawStorage : IRawStorage
     /// <returns>The current or default storage slot.</returns>
     public virtual IStorageSlot GetSlot()
     {
-        return CurrentSlot ?? GetSlot("dat");
+        return CurrentSlot ?? GetSlot(SegmentedPath.DataFileName);
     }
 
     /// <summary>
