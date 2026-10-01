@@ -111,11 +111,12 @@ public class OpaqueFsKeyValuePairStorage : IKeyValuePairStorage
     /// Transforms the key into an opaque identifier using double HMAC-SHA256, making it unrecoverable from the stored form.
     /// </summary>
     /// <param name="key">The original key to transform.</param>
-    /// <returns>A Base64-encoded opaque key identifier.</returns>
+    /// <returns>A hex-encoded opaque key identifier. Hex is the only encoding whose characters are safe as path segments on every platform;
+    /// standard base64 contains '/', which would make the segmented storage path restart at the drive root.</returns>
     protected virtual string TransformKey(string key)
     {
         byte[] hmacKey = HmacKeyProvider.GetNamedHmacKey(nameof(OpaqueFsKeyValuePairStorage));
-        return key.DoubleHmacSha256(hmacKey).ToBase64();
+        return key.DoubleHmacSha256(hmacKey).ToHexString();
     }
 
     /// <summary>

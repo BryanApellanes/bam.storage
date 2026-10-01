@@ -63,10 +63,6 @@ public class OpaqueFsSlottedStorage : FsSlottedStorage
     {
         Args.ThrowIfNullOrEmpty(hashHexString, nameof(hashHexString));
         string doubleHmac = OpaquenessProvider.TransformHashHexString(hashHexString);
-        
-        List<string> parts = new List<string>();
-        parts.AddRange(doubleHmac.Split(2));
-        parts.Add("dat");
-        return new OpaqueFsStorageSlot(OpaquenessProvider, RootHolder, Path.Combine(parts.ToArray()));
+        return new OpaqueFsStorageSlot(OpaquenessProvider, RootHolder, SegmentedPath.FromHashHexString(doubleHmac));
     }
 }

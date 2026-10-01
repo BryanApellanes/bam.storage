@@ -20,31 +20,32 @@ public class FsStorageShould : UnitTestMenuContainer
     {
         string root = Path.Combine(Environment.CurrentDirectory, nameof(SaveFile));
         ulong testKey = 32.RandomLetters().ToHashULong(HashAlgorithms.SHA256);
-        List<string> parts = new List<string> { root };
+        List<string> parts = new List<string>();
         parts.AddRange(typeof(TestStorageData).Namespace!.Split('.'));
         parts.Add(nameof(TestStorageData));
         parts.Add("key");
-        parts.AddRange(testKey.ToString().Split(2));
-        parts.Add("dat");
+        parts.AddRange(SegmentedPath.Segments(testKey.ToString()));
+        parts.Add(SegmentedPath.DataFileName);
 
-        string expected = Path.Combine(parts.ToArray());
+        string relativePath = Path.Combine(parts.ToArray());
+        string expected = Path.Combine(root, relativePath);
         string testData = 64.RandomLetters();
         if (File.Exists(expected))
         {
             File.Delete(expected);
         }
 
-        When.A<FsSlottedStorage>("saves a file to the expected path",
-            () => new FsSlottedStorage(expected),
+        When.A<FsSlottedStorage>("saves a file to the expected path under its root",
+            () => new FsSlottedStorage(root),
             (slottedStorage) =>
             {
-                slottedStorage.Save(expected, new RawData(testData));
+                slottedStorage.Save(relativePath, new RawData(testData));
                 return File.Exists(expected);
             })
         .TheTest
-        .ShouldPass(because =>
+        .ShouldPass<bool>((because, saved) =>
         {
-            because.ItsTrue("file was saved", (bool)because.Result);
+            because.ItsTrue("file was saved", saved);
         })
         .SoBeHappy()
         .UnlessItFailed();

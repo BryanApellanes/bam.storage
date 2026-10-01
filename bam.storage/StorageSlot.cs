@@ -1,4 +1,4 @@
-﻿namespace Bam.Storage;
+namespace Bam.Storage;
 
 /// <summary>
 /// Abstract base class for storage slots that provides file-system-based data reading and a static factory
@@ -9,7 +9,7 @@ public abstract class StorageSlot : IStorageSlot
     /// <summary>
     /// Initializes a new instance of <see cref="StorageSlot"/> with the default relative path "dat".
     /// </summary>
-    public StorageSlot(): this("dat")
+    public StorageSlot(): this(SegmentedPath.DataFileName)
     {
     }
 
@@ -18,10 +18,11 @@ public abstract class StorageSlot : IStorageSlot
     /// and the working directory as the storage holder.
     /// </summary>
     /// <param name="relativePath">The relative path (name) of this slot.</param>
+    /// <exception cref="ArgumentException">The path is rooted, empty, or contains a segment that could escape the holder.</exception>
     public StorageSlot(string relativePath)
     {
         this.StorageHolder = DirectoryStorageHolder.WorkingDirectoryHolder;
-        this.Name = relativePath;
+        this.Name = StoragePathGuard.EnsureRelativePath(relativePath, nameof(relativePath));
     }
 
     /// <summary>
@@ -29,6 +30,7 @@ public abstract class StorageSlot : IStorageSlot
     /// </summary>
     /// <param name="storageHolder">The storage holder that contains this slot.</param>
     /// <param name="relativePath">The relative path (name) of this slot within the holder.</param>
+    /// <exception cref="ArgumentException">The path is rooted, empty, or contains a segment that could escape the holder.</exception>
     public StorageSlot(IStorageHolder storageHolder, string relativePath) : this(relativePath)
     {
         this.StorageHolder = storageHolder;
@@ -56,7 +58,6 @@ public abstract class StorageSlot : IStorageSlot
 
     /// <summary>
     /// Reads and returns the raw data from the file at this slot's full path. Caches the result for subsequent calls.
-    /// Throws <see cref="ArgumentException"/> if the file does not exist.
     /// </summary>
     /// <returns>The raw data stored at this slot's file path.</returns>
     public virtual IRawData? GetData()
@@ -92,14 +93,10 @@ public abstract class StorageSlot : IStorageSlot
     /// </summary>
     /// <param name="rootHolder">The root storage holder for the segmented path.</param>
     /// <param name="hashHexString">The hex-encoded hash string to split into path segments.</param>
-    /// <returns>A file-system storage slot at the segmented path.</returns>
+    /// <returns>A file-system storage slot at the segmented path, always inside <paramref name="rootHolder"/>.</returns>
+    /// <exception cref="ArgumentException">The identifier contains a character that is not safe in a path segment.</exception>
     public static IStorageSlot GetSegmentedPathStorageSlot(IStorageHolder rootHolder, string hashHexString)
     {
-        Args.ThrowIfNullOrEmpty(hashHexString, nameof(hashHexString));
-
-        List<string> parts = new List<string>();
-        parts.AddRange(hashHexString.Split(2));
-        parts.Add("dat");
-        return new FsStorageSlot(rootHolder, Path.Combine(parts.ToArray()));
+        return new FsStorageSlot(rootHolder, SegmentedPath.FromHashHexString(hashHexString));
     }
 }
