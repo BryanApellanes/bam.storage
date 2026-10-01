@@ -8,7 +8,7 @@ public class HolderInfo: IStorageHolder
     /// <summary>
     /// Initializes a new instance of <see cref="HolderInfo"/> using the default profile data path with a "dat" file name.
     /// </summary>
-    public HolderInfo(): this(Path.Combine(DirectoryStorageHolder.ProfileDirectoryHolder.FullName!, "dat"))
+    public HolderInfo(): this(Path.Combine(DirectoryStorageHolder.ProfileDirectoryHolder.FullName!, SegmentedPath.DataFileName))
     {
     }
 

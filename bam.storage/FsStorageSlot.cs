@@ -9,7 +9,7 @@ public class FsStorageSlot : StorageSlot
     /// <summary>
     /// Initializes a new instance of <see cref="FsStorageSlot"/> with the default relative path "dat".
     /// </summary>
-    public FsStorageSlot(): this("dat")
+    public FsStorageSlot(): this(SegmentedPath.DataFileName)
     {
     }
 
@@ -18,6 +18,7 @@ public class FsStorageSlot : StorageSlot
     /// and the working directory as the storage holder.
     /// </summary>
     /// <param name="relativePath">The relative path (name) of this slot.</param>
+    /// <exception cref="ArgumentException">The path is rooted, empty, contains an unsafe segment, or resolves outside the holder.</exception>
     public FsStorageSlot(string relativePath) : base(relativePath)
     {
     }
@@ -27,6 +28,7 @@ public class FsStorageSlot : StorageSlot
     /// </summary>
     /// <param name="storageHolder">The storage holder that contains this slot.</param>
     /// <param name="relativePath">The relative path (name) of this slot within the holder.</param>
+    /// <exception cref="ArgumentException">The path is rooted, empty, contains an unsafe segment, or resolves outside the holder.</exception>
     public FsStorageSlot(IStorageHolder storageHolder, string relativePath) : base(storageHolder, relativePath)
     {
     }

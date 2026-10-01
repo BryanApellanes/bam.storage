@@ -20,6 +20,8 @@ Additionally, the project includes `MultiProcessData`, an abstract class that su
 | `RootStorageHolder` | A specialized `DirectoryStorageHolder` implementing `IRootStorageHolder` for use as a storage root. |
 | `StorageSlot` | Abstract base for file slots. Computes `FullName` from holder + relative path. Reads data lazily from disk. |
 | `FsStorageSlot` | Concrete filesystem slot that writes bytes to disk, creating parent directories as needed. Provides `GetSegmentedPathStorageSlot` for content-addressable path construction. |
+| `SegmentedPath` | Builds the `ab/cd/.../dat` relative path for an identifier, keeping the remainder of an odd-length identifier as its own segment. Owns the `dat` file name (`DataFileName`). |
+| `StoragePathGuard` | Keeps slot paths inside their holder. Refuses rooted paths, `.`/`..`, a fixed platform-neutral set of invalid characters, segments ending in `.` or a space, and Windows reserved device names (`NUL`, `COM1`, ...); then resolves the path against the holder and refuses anything that lands outside it. Applied in the `StorageSlot` constructor. |
 | `FsRawStorage` | Content-addressable storage: saves data to a path derived from its hash, loads by hash hex string. |
 | `SlottedStorage` | Abstract base class for `ISlottedStorage` implementations. |
 | `FsSlottedStorage` | Full-featured filesystem slotted storage with save/load by slot, relative path, hash, or raw bytes. |
@@ -100,5 +102,4 @@ if (result.Success)
 
 - `IStorageSearch` is an empty interface with no members or implementations.
 - `IRawDataStorageSaveResult` and `IRawDataStorageLoadResult` have concrete classes (`FsRawDataDataStorageSaveResult`, `FsRawDataStorageLoadResult`) but they are not used by the main `FsRawStorage` or `FsSlottedStorage` save/load methods, which return `IStorageSlot` or `IRawData` directly.
-- `FsStorageSlot` contains a commented-out duplicate of `GetSegmentedPathStorageSlot` (the active implementation is in the base `StorageSlot` class).
 - `KeyValuePairData` in the `Data` namespace implements `IKeyValuePair` but has a commented-out `AuditRepoData` base class, suggesting planned but unfinished integration with the data repository layer.

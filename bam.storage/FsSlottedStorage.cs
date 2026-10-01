@@ -55,7 +55,7 @@ public class FsSlottedStorage : SlottedStorage
     /// <returns>The current or default storage slot.</returns>
     public override IStorageSlot GetSlot()
     {
-        return CurrentSlot ?? GetSlot("dat");
+        return CurrentSlot ?? GetSlot(SegmentedPath.DataFileName);
     }
 
     /// <summary>

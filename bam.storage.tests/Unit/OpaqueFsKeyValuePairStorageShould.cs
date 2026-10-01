@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bam.DependencyInjection;
@@ -88,7 +89,7 @@ public class OpaqueFsKeyValuePairStorageShould : UnitTestMenuContainer
         ServiceRegistry registry = Configure(svcReg =>
         {
             svcReg.For<IAesKeySource>().UseSingleton(new AesKey());
-            svcReg.For<IHmacKeyProvider>().Use<HmacKeyProvider>();
+            svcReg.For<IHmacKeyProvider>().UseSingleton(new InMemoryHmacKeyProvider());
             svcReg.For<FsSlottedStorage>().UseSingleton(new FsSlottedStorage(root));
         });
         return registry.Get<ExposedOpaqueFsKeyValuePairStorage>();
@@ -112,6 +113,30 @@ public class OpaqueFsKeyValuePairStorageShould : UnitTestMenuContainer
         public string Transform(string key)
         {
             return TransformKey(key);
+        }
+    }
+
+    /// <summary>
+    /// Keeps named HMAC keys in memory. <see cref="HmacKeyProvider"/> reads and writes
+    /// <c>hmac_key-OpaqueFsKeyValuePairStorage</c> in the real profile's vault, which a unit test should not touch.
+    /// </summary>
+    private sealed class InMemoryHmacKeyProvider : IHmacKeyProvider
+    {
+        private readonly Dictionary<string, byte[]> _namedKeys = new Dictionary<string, byte[]>();
+
+        public byte[] GetNewHmacKey()
+        {
+            return RandomNumberGenerator.GetBytes(32);
+        }
+
+        public byte[] GetNamedHmacKey(string name)
+        {
+            if (!_namedKeys.TryGetValue(name, out byte[]? key))
+            {
+                key = GetNewHmacKey();
+                _namedKeys[name] = key;
+            }
+            return key;
         }
     }
 

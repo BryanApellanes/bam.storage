@@ -16,8 +16,8 @@ The project references both bam.storage and bam.storage.encryption, providing co
 |-------|-------------|
 | `Program` | Entry point that delegates to `BamConsoleContext.StaticMain` for menu-driven test execution. |
 | `FsStorageShould` (Unit) | Tests that `FsSlottedStorage` saves a file to the expected filesystem path. |
-| `StoragePathGuardShould` (Unit) | Pins bam.storage#1: segmented paths built from keys with path separators (standard base64) are rejected instead of restarting at the drive root; rooted and `..` relative paths are refused; odd-length identifiers keep their remainder segment. |
-| `OpaqueFsKeyValuePairStorageShould` (Unit) | Verifies `OpaqueFsKeyValuePairStorage` transforms keys to hex (no path separators) and that every saved pair lands under the configured root. |
+| `StoragePathGuardShould` (Unit) | Pins bam.storage#1: segmented paths built from keys with path separators (standard base64) are rejected instead of restarting at the drive root; rooted, drive-relative, UNC and `..` relative paths are refused in any position; characters Windows cannot store (`?`, `*`, `:` ...), segments ending in `.` or a space and Windows device names (`NUL`, `COM1` ...) are refused on every platform; a path that resolves outside its holder is refused; odd-length identifiers keep their remainder segment. |
+| `OpaqueFsKeyValuePairStorageShould` (Unit) | Verifies `OpaqueFsKeyValuePairStorage` transforms keys to hex (no path separators) and that every saved pair lands under the configured root. Uses an in-memory HMAC key provider so it does not touch the profile vault. |
 | `FsRawStorageShould` (Integration) | Tests that `FsRawStorage` can save raw data and retrieve it both from the returned slot and by hash hex string lookup. |
 | `OpaqueFsRawStorageShould` (Integration) | Tests that `OpaqueFsRawStorage` encrypts data on save and decrypts correctly on load by hash. |
 | `OpaqueFsObjectStorageShould` (Integration) | Tests that `OpaqueFsSlottedStorage` round-trips data through encrypted slotted storage using dependency-injected `IAesKeySource` and `IHmacKeyProvider`. |

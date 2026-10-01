@@ -51,7 +51,7 @@ public static class StorageSlotExtensions
 
         if (string.IsNullOrEmpty(slotPath))
         {
-            slotPath = "dat";
+            slotPath = SegmentedPath.DataFileName;
         }
         
         IStorageHolder holder = slot.StorageHolder ?? DirectoryStorageHolder.ProfileDirectoryHolder;
